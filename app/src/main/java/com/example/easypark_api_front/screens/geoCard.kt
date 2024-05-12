@@ -218,7 +218,6 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal){
                                 modifier=Modifier.padding(end=220.dp)
 
                             )
-                            Image(painter = painterResource(id = R.drawable.filter), contentDescription = "filter",modifier= Modifier
 
                                 .size(20.dp))
                             Image(painter = painterResource(id = R.drawable.sort), contentDescription = "sort",modifier= Modifier
