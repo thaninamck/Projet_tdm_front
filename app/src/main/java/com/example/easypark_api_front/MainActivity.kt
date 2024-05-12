@@ -26,7 +26,7 @@ import com.example.easypark_api_front.screens.displaySignIn
 import com.example.easypark_api_front.screens.displaySignUp
 import com.example.easypark_api_front.screens.displayTicket
 import com.example.easypark_api_front.screens.myReservations
-import com.example.easypark_api_front.screens.parkingDetails
+//import com.example.easypark_api_front.screens.parkingDetails
 import com.example.easypark_api_front.ui.theme.EasyparkapifrontTheme
 
 class MainActivity : ComponentActivity() {
@@ -52,7 +52,7 @@ fun AppNavigation(viewModal: viewModal) {
 
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = Routes.GeoCardSCreen.route) {
+    NavHost(navController = navController, startDestination = Routes.booking2.route) {
 
 
 
@@ -78,14 +78,14 @@ fun AppNavigation(viewModal: viewModal) {
             BottomSheetExample()
         }
 
-        composable(Routes.ParkingDetail.route) { backStackEntry ->
-            val parkingId = backStackEntry.arguments?.getString("parkingId")?.toInt()
-            if (parkingId != null) {
-                parkingDetails(parkingId=parkingId,navController)
-            } else {
-                // Gérez le cas où le parking n'est pas trouvé
-            }
-        }
+//        composable(Routes.ParkingDetail.route) { backStackEntry ->
+//            val parkingId = backStackEntry.arguments?.getString("parkingId")?.toInt()
+//            if (parkingId != null) {
+//                parkingDetails(parkingId=parkingId,navController)
+//            } else {
+//                // Gérez le cas où le parking n'est pas trouvé
+//            }
+//        }
 
         composable(Routes.booking1.route){
             displayBooking1(navController)

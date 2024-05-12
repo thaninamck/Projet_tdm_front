@@ -247,26 +247,17 @@ fun displaySignUp(navController: NavController,viewModal: viewModal) {
 
                         if (password1 != password2) {
                             passwordMatchError = true
-                        } else if (full_name.isEmpty() || phone_number.isEmpty() || password1.isEmpty()) {
+                        }
+                        else {
+                            if (full_name.isEmpty() || phone_number.isEmpty() || password1.isEmpty()) {
                             emptyFieldsError = true
-                        } else {
-                            passwordMatchError = false
-                            emptyFieldsError = false
-                            viewModal.registerUser(full_name, phone_number, password1)
-
-                            // pour lancer une nouvelle coroutine
-                            CoroutineScope(Dispatchers.Main).launch {
-                                viewModal.success.collect { isSuccess ->
-                                    if (isSuccess) {
-                                        // Naviguer vers un autre écran
-                                        navController.navigate(Routes.GeoCardSCreen.route)
-                                    } else {
-                                        showToast.value = true
-                                    }
+                           } else {
+                                passwordMatchError = false
+                                emptyFieldsError = false
+                                viewModal.registerUser(full_name, phone_number, password1)
                                 }
                             }
-                        }
-                    })
+                        })
 
 
                 {
@@ -345,5 +336,16 @@ fun displaySignUp(navController: NavController,viewModal: viewModal) {
 
 
         }
+    }
+    successCheck(sucess = viewModal.success.value, navController = navController)
+
+}
+
+fun successCheck(sucess:Boolean,navController: NavController){
+    if (sucess){
+        navController.navigate(Routes.notifications.route)
+
+    }else{
+
     }
 }

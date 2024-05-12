@@ -2,19 +2,20 @@ package com.example.easypark.model
 
 import java.sql.Time
 
-class Parking {
-    var id: Int = 0
-    var nom: String = ""
-    var description: String = ""
-    var address: String = ""
-    var localization: String = ""
-    var image: Int = 0
-    var area: Float = 0f
-    var open: Time = Time.valueOf("00:00:00")
-    var close: Time = Time.valueOf("00:00:00")
-    var rules: String = ""
-    var pricePerHour: Float = 0f
+data class Parking (
+    var id: Int ,
+    var nom: String ,
+    var description: String ,
+    var address: String ,
+    var localization: String ,
+    var image: String ,
+    var area: Float ,
+    var open: String ,
+    var close: String ,
+    var rules: String ,
+    var price_per_hour: Float ,
+    var available_slots: Int
 
 
 
-}
+)

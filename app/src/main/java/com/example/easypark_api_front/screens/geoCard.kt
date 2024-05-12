@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -30,6 +31,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -75,14 +77,15 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal){
                 horizontalAlignment = Alignment.Start
                 )
                 {
-                Row (modifier=Modifier.fillMaxWidth()
+                Row (modifier= Modifier
+                    .fillMaxWidth()
                     .padding(top = 50.dp),
                     //horizontalArrangement = Arrangement.SpaceBetween
                 ){
                     Image(modifier= Modifier
                         .clip(CircleShape)
 
-                        .padding(start=20.dp)
+                        .padding(start = 20.dp)
                         .shadow(elevation = 4.dp)
                         .size(55.dp),painter = painterResource(id = R.drawable.google_logo),
                         contentDescription = null)
@@ -103,7 +106,7 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal){
                     Image(modifier= Modifier
                         .clip(CircleShape)
 
-                        .padding(start=35.dp,end=10.dp)
+                        .padding(start = 35.dp, end = 10.dp)
                         .shadow(elevation = 4.dp)
                         .size(40.dp),painter = painterResource(id = R.drawable.notification),
                         contentDescription = null)
@@ -112,8 +115,10 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal){
                     color = Color(0xFF192342),
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp),
-                    modifier= Modifier.padding(start=10.dp,top =90.dp
-                    )
+                    modifier= Modifier
+                        .padding(
+                            start = 10.dp, top = 90.dp
+                        )
                         .clickable {
                             navController.navigate(
                                 Routes.pmyReservations.route
@@ -139,7 +144,6 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal){
                     Row(modifier=Modifier.fillMaxWidth(),
                         ) {
                         Image(modifier= Modifier
-
 
 
                             .shadow(elevation = 4.dp)
@@ -202,29 +206,27 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal){
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceAround,
-                            modifier=Modifier.padding(10.dp)
+                            modifier=Modifier.padding(20.dp)
 
                         ) {
                             Text(text = "RESULT",style = TextStyle(
                                 color = Color(0xFF677191),
                                 fontWeight = FontWeight.SemiBold,
-                                fontSize = 18.sp,
+                                fontSize = 12.sp,
 
                                 ),
-                                modifier=Modifier.padding(end=210.dp)
+                                modifier=Modifier.padding(end=220.dp)
 
                             )
                             Image(painter = painterResource(id = R.drawable.filter), contentDescription = "filter",modifier= Modifier
 
-                                .size(25.dp))
+                                .size(20.dp))
                             Image(painter = painterResource(id = R.drawable.sort), contentDescription = "sort",modifier= Modifier
-                                .padding(10.dp)
-                                .size(25.dp))
+                                .padding(start = 20.dp)
+                                .size(20.dp))
 
                         }
 
-
-                        viewModal.getAllParkings()
                         //Loader(loading = viewModal.loading.value)
                         LazyColumn {
                             items(viewModal.data.value) { parking ->
@@ -233,35 +235,38 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal){
                                     modifier = Modifier
                                         .clickable {
                                             var parkingId = parking.id
-                                            navController.navigate(
-                                                Routes.ParkingDetail.getUrlWithId(
-                                                    parkingId.toString()
-                                                )
-                                            )
+//                                            navController.navigate(
+//                                                Routes.ParkingDetail.getUrlWithId(
+//                                                    parkingId.toString()
+//                                                )
+//                                            )
                                         }
-                                        .padding(16.dp)) {
-                                    Row {
+                                        .padding(top = 20.dp, start = 5.dp)) {
+                                    Row(horizontalArrangement = Arrangement.SpaceBetween) {
                                         Image(painter = painterResource(id = R.drawable.parking_sign), contentDescription = "sort",modifier= Modifier
-                                            .padding(10.dp)
-                                            .size(30.dp))
-                                        Column (modifier= Modifier
-                                            .padding(10.dp)){
+                                            .padding(top = 8.dp, end = 10.dp)
+                                            .size(50.dp))
+                                        Column (
+                                            ){
                                             Text(text = parking.nom,style = TextStyle(
                                                 color = Color(0xFF192342),
                                                 fontWeight = FontWeight.Bold,
-                                                fontSize = 18.sp))
+                                                fontSize = 14.sp))
 
                                             Text(text = parking.address,style = TextStyle(
                                                 color = Color(0xFF677191),
                                                 fontWeight = FontWeight.Medium,
-                                                fontSize = 16.sp))
+                                                fontSize = 12.sp))
                                         }
-                                        Text(text = (parking.area).toString(),style = TextStyle(
-                                            color = Color(0xFF192342),
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 16.sp),
-                                            modifier= Modifier
-                                                .padding(start=40.dp))
+
+                                            Text(text = (parking.available_slots).toString()+"slots",style = TextStyle(
+                                                color = Color(0xFF192342),
+                                                fontWeight = FontWeight.SemiBold,
+                                                fontSize = 11.sp),
+                                        modifier=Modifier.padding(start=11.dp,top = 17.dp))
+
+
+
                                     }
                                 }
                             }
@@ -321,7 +326,7 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal){
                             })
                         },
                         modifier= Modifier
-                            .padding(start = 45.dp)
+                            .padding(start = 25.dp)
                             .width(336.dp)
                             .padding(top = 50.dp)
                             .shadow(elevation = 8.dp),
@@ -345,6 +350,11 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal){
         }
     )
 
+    LaunchedEffect(Unit) {
+        viewModal.getAllParkings()
+
+    }
+
     }
 
 @Composable
@@ -361,3 +371,4 @@ fun DisplayToast(error:Boolean){
     }
 
 }
+

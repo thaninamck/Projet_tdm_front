@@ -162,36 +162,43 @@ fun displayBooking4(navController: NavController){
 
             Image(painter = painterResource(id = R.drawable.credit_card), contentDescription ="parking_image" ,
                 modifier= Modifier
-                    .padding(start = 20.dp, top = 30.dp, end = 20.dp)
+                    .padding(start = 20.dp, top = 30.dp, end = 20.dp,bottom=10.dp)
                     .width(345.dp)
                     .height(211.dp)
                     .clip(RoundedCornerShape(15.dp)),
                 contentScale = ContentScale.FillBounds)
-        }
-        Row(
-            modifier = Modifier
-                .background(Color(0xFFF3F6FF))
-                .padding(top=20.dp,start=20.dp)
-                .height(50.dp)
-                .width(345.dp) ,
-            verticalAlignment = Alignment.CenterVertically
 
-        ) {
-            Divider(modifier= Modifier
-                .height(50.dp)
-                .width(8.dp)
-                ,color = Color.Black, thickness = 2.dp)
-            Text(
-                text = "TOTAL", modifier = Modifier.padding(start = 8.dp), style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color.Black)
-            )
-            Column (
-                modifier=Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.End){
+
+            Row(
+                modifier = Modifier
+                    .background(Color(0xFFF3F6FF))
+
+                    .height(50.dp)
+                    .width(335.dp) ,
+                verticalAlignment = Alignment.CenterVertically
+
+            ) {
+                Divider(modifier= Modifier
+                    .height(50.dp)
+                    .width(8.dp)
+                    ,color = Color.Black, thickness = 2.dp)
                 Text(
-                    text = "800 DZD", modifier = Modifier.padding(start = 8.dp), style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color.Black)
+                    text = "TOTAL", modifier = Modifier.padding(start = 8.dp), style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color.Black)
                 )
+                Column (
+                    modifier=Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.End){
+                    Text(
+                        text = "800 DZD", modifier = Modifier.padding(start = 8.dp), style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color.Black)
+                    )
+                }
             }
+
+
+
+
         }
+
 
         Column (
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -199,7 +206,7 @@ fun displayBooking4(navController: NavController){
             modifier = Modifier
                 .fillMaxWidth()
 
-                .padding(top = 85.dp)
+                .padding(top = 45.dp)
         ){
             Button(modifier = Modifier
 
@@ -212,7 +219,7 @@ fun displayBooking4(navController: NavController){
                     containerColor = Color.Black,
                     disabledContainerColor = Color.Black
                 )
-                , onClick = { navController.navigate(Routes.booking2.route) }) {
+                , onClick = { navController.navigate(Routes.paymentSuccess.route) }) {
                 Text(
                     text = "Confirm & Pay",
                     style = TextStyle(

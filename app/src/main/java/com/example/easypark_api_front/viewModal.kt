@@ -17,6 +17,7 @@ class viewModal(private val repository: Repository):ViewModel() {
     val data= mutableStateOf(listOf<Parking>())
     val error= mutableStateOf(false)
     val loading= mutableStateOf(false)
+    var success = mutableStateOf(false)
     fun getAllParkings(){
         loading.value=true
         viewModelScope.launch {
@@ -46,13 +47,18 @@ class viewModal(private val repository: Repository):ViewModel() {
 
 
 
-    val success = MutableStateFlow(false)
+
 
     fun registerUser(fullName: String, phone: String, password: String) {
         viewModelScope.launch {
             val user = User(full_name = fullName, phone = phone, password = password)
             val response = repository.registerUser(user)
-            success.value = response.isSuccessful
+
+            if( response.isSuccessful){
+                success.value=true
+            }else{
+                success.value=false
+            }
         }
     }
 
