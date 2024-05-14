@@ -1,20 +1,22 @@
 package com.example.easypark_api_front
 
 
+    import androidx.compose.runtime.MutableState
     import androidx.compose.runtime.mutableStateOf
     import androidx.lifecycle.ViewModel
     import androidx.lifecycle.ViewModelProvider
     import androidx.lifecycle.viewModelScope
     import androidx.lifecycle.viewmodel.CreationExtras
-    import androidx.navigation.NavController
-    import com.example.easypark.model.Parking
+    import com.example.easypark_api_front.model.Parking
     import com.example.easypark_api_front.model.User
     import kotlinx.coroutines.CoroutineScope
     import kotlinx.coroutines.Dispatchers
-    import kotlinx.coroutines.flow.MutableStateFlow
     import kotlinx.coroutines.launch
+    import kotlinx.coroutines.withContext
+
 class viewModal(private val repository: Repository):ViewModel() {
     val data= mutableStateOf(listOf<Parking>())
+    val parking_data= mutableStateOf<Parking?>(null)
     val error= mutableStateOf(false)
     val loading= mutableStateOf(false)
     var success = mutableStateOf(false)
@@ -36,6 +38,27 @@ class viewModal(private val repository: Repository):ViewModel() {
             }
         }
     }
+
+    fun getParkingById(id:Int){
+        loading.value=true
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+
+            val response=repository.getParkingById(id)
+                loading.value=false
+                if(response.isSuccessful){
+                    val data=response.body()
+                    if (data!=null){
+                        parking_data.value=data
+                    }
+                }
+                else{
+                    error.value=true
+                }
+            }
+        }
+    }
+
 
 
 

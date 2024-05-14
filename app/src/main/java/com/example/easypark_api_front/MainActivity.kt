@@ -1,9 +1,11 @@
 package com.example.easypark_api_front
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -26,6 +28,7 @@ import com.example.easypark_api_front.screens.displaySignIn
 import com.example.easypark_api_front.screens.displaySignUp
 import com.example.easypark_api_front.screens.displayTicket
 import com.example.easypark_api_front.screens.myReservations
+import com.example.easypark_api_front.screens.parkingDetails
 //import com.example.easypark_api_front.screens.parkingDetails
 import com.example.easypark_api_front.ui.theme.EasyparkapifrontTheme
 
@@ -33,6 +36,7 @@ class MainActivity : ComponentActivity() {
     private val viewmodal: viewModal by viewModels{
         viewModal.Factory((application as MyApplication).repository)
     }
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -47,12 +51,13 @@ class MainActivity : ComponentActivity() {
 }
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavigation(viewModal: viewModal) {
 
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = Routes.booking2.route) {
+    NavHost(navController = navController, startDestination = Routes.GeoCardSCreen.route) {
 
 
 
@@ -72,20 +77,19 @@ fun AppNavigation(viewModal: viewModal) {
 
             displayGeoCard(navController,viewModal)
 
-            //if(viewModal.data.value.isEmpty()) viewModal.getAllParkings()
         }
         composable(Routes.bottomSheet.route){
             BottomSheetExample()
         }
 
-//        composable(Routes.ParkingDetail.route) { backStackEntry ->
-//            val parkingId = backStackEntry.arguments?.getString("parkingId")?.toInt()
-//            if (parkingId != null) {
-//                parkingDetails(parkingId=parkingId,navController)
-//            } else {
-//                // Gérez le cas où le parking n'est pas trouvé
-//            }
-//        }
+        composable(Routes.ParkingDetail.route) { backStackEntry ->
+            val parkingId = backStackEntry.arguments?.getString("parkingId")?.toInt()
+            if (parkingId != null) {
+             parkingDetails(parkingId=parkingId,navController,viewModal)
+            } else {
+                displaySignIn()
+            }
+        }
 
         composable(Routes.booking1.route){
             displayBooking1(navController)

@@ -1,4 +1,4 @@
-package com.example.easypark.model
+package com.example.easypark_api_front.model
 
 import java.sql.Time
 

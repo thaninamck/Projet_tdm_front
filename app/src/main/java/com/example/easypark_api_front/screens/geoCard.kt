@@ -1,10 +1,14 @@
 package com.example.easypark_api_front.screens
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Bundle
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -51,12 +55,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.easypark_api_front.R
 import com.example.easypark_api_front.Routes
 
 import com.example.easypark_api_front.viewModal
+import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.launch
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import org.osmdroid.views.MapView
+import com.google.android.gms.maps.model.LatLng
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.GeoPoint
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,6 +78,7 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal){
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    var searchQuery by remember { mutableStateOf("") }
 
 
 
@@ -87,7 +101,7 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal){
 
                         .padding(start = 20.dp)
                         .shadow(elevation = 4.dp)
-                        .size(55.dp),painter = painterResource(id = R.drawable.google_logo),
+                        .size(55.dp),painter = painterResource(id = R.drawable.avatar),
                         contentDescription = null)
                     Column (modifier= Modifier
 
@@ -96,25 +110,25 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal){
                         Text(text = "Ahmed Bouroubaz",style = TextStyle(
                             color = Color(0xFF192342),
                             fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp))
+                            fontSize = 15.sp))
 
                         Text(text = "Ageria",style = TextStyle(
                             color = Color(0xFF677191),
                             fontWeight = FontWeight.Medium,
-                            fontSize = 16.sp))
+                            fontSize = 13.sp))
                     }
                     Image(modifier= Modifier
                         .clip(CircleShape)
 
                         .padding(start = 35.dp, end = 10.dp)
                         .shadow(elevation = 4.dp)
-                        .size(40.dp),painter = painterResource(id = R.drawable.notification),
+                        .size(30.dp),painter = painterResource(id = R.drawable.notification),
                         contentDescription = null)
                 }
                 Text(text = "My Reservations",style = TextStyle(
                     color = Color(0xFF192342),
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp),
+                    fontSize = 15.sp),
                     modifier= Modifier
                         .padding(
                             start = 10.dp, top = 90.dp
@@ -130,7 +144,7 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal){
                 Text(text = "History",style = TextStyle(
                     color = Color(0xFF192342),
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp),
+                    fontSize = 15.sp),
                     modifier= Modifier.padding(start=10.dp,bottom=90.dp,top=20.dp)
                        )
 
@@ -147,12 +161,12 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal){
 
 
                             .shadow(elevation = 4.dp)
-                            .size(30.dp),painter = painterResource(id = R.drawable.logout),
+                            .size(20.dp),painter = painterResource(id = R.drawable.logout),
                             contentDescription = null)
                         Text(text = "Logout",style = TextStyle(
                             color = Color(0xFF192342),
                             fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp),
+                            fontSize = 15.sp),
                             modifier= Modifier.padding(start=10.dp)
                         )
                     }
@@ -175,9 +189,8 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal){
                         modifier=Modifier.fillMaxSize()
                     ) {
                         TextField(
-                            value = "",
-
-                            onValueChange = {},
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
                             placeholder = {
                                 Text(buildAnnotatedString {
                                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, color = Color.Gray, fontSize = 14.sp)) {
@@ -206,7 +219,7 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal){
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceAround,
-                            modifier=Modifier.padding(20.dp)
+                            modifier=Modifier.fillMaxWidth().padding(20.dp)
 
                         ) {
                             Text(text = "RESULT",style = TextStyle(
@@ -220,52 +233,71 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal){
                             )
 
 
+                            Column (
+
+                                horizontalAlignment = Alignment.End,
+                                modifier=Modifier.padding(4.dp)
+
+                            ){
                             Image(painter = painterResource(id = R.drawable.sort), contentDescription = "sort",modifier= Modifier
                                 .padding(start = 20.dp)
-                                .size(20.dp))
+                                .size(20.dp))}
 
                         }
 
                         //Loader(loading = viewModal.loading.value)
                         LazyColumn {
-                            items(viewModal.data.value) { parking ->
+                            items(viewModal.data.value.filter {
+                                it.nom.contains(searchQuery, ignoreCase = true) ||
+                                        it.address.contains(searchQuery, ignoreCase = true)
+                            }) { parking ->
                                 Column(
-
                                     modifier = Modifier
                                         .clickable {
                                             var parkingId = parking.id
-//                                            navController.navigate(
-//                                                Routes.ParkingDetail.getUrlWithId(
-//                                                    parkingId.toString()
-//                                                )
-//                                            )
+                                            navController.navigate(
+                                                Routes.ParkingDetail.getUrlWithId(
+                                                    parkingId.toString()
+                                                )
+                                            )
                                         }
-                                        .padding(top = 20.dp, start = 5.dp)) {
-                                    Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                                        .fillMaxWidth()
+                                        .padding(top = 20.dp, start = 5.dp)
+
+                                ) {
+                                    Row(
+                                        modifier=Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween) {
                                         Image(painter = painterResource(id = R.drawable.parking_sign), contentDescription = "sort",modifier= Modifier
                                             .padding(top = 8.dp, end = 10.dp)
-                                            .size(50.dp))
-                                        Column (
-                                            ){
+                                            .size(45.dp))
+                                        Column(
+                                            modifier=Modifier.padding(2.dp),
+                                        ) {
                                             Text(text = parking.nom,style = TextStyle(
                                                 color = Color(0xFF192342),
                                                 fontWeight = FontWeight.Bold,
-                                                fontSize = 14.sp))
+                                                fontSize = 16.sp))
 
                                             Text(text = parking.address,style = TextStyle(
                                                 color = Color(0xFF677191),
                                                 fontWeight = FontWeight.Medium,
-                                                fontSize = 12.sp))
+                                                fontSize = 14.sp))
                                         }
 
+                                        Column (
+                                            verticalArrangement = Arrangement.Center,
+                                            horizontalAlignment = Alignment.End,
+
+
+                                        ){
                                             Text(text = (parking.available_slots).toString()+"slots",style = TextStyle(
                                                 color = Color(0xFF192342),
                                                 fontWeight = FontWeight.SemiBold,
-                                                fontSize = 11.sp),
-                                        modifier=Modifier.padding(start=11.dp,top = 17.dp))
-
-
-
+                                                fontSize = 14.sp)
+                                               // modifier=Modifier.padding(start=11.dp,top = 17.dp)
+                                         )
+                                        }
                                     }
                                 }
                             }
@@ -290,7 +322,7 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal){
                         horizontalArrangement = Arrangement.SpaceAround,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 50.dp)
+                            .padding(top = 70.dp)
                     ) {
                         Image(modifier= Modifier
                             .padding(end = 90.dp)
@@ -305,7 +337,7 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal){
 
                             .padding(start = 90.dp)
                             .shadow(elevation = 4.dp)
-                            .size(35.dp),painter = painterResource(id = R.drawable.google_logo),
+                            .size(35.dp),painter = painterResource(id = R.drawable.avatar),
                             contentDescription = null)
 
 
@@ -342,9 +374,45 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal){
                     )
 
 
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)) {
+
+                        MapViewContainer() // Ajoutez ceci pour afficher la carte
+
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Image(painter = painterResource(id = R.drawable.car_not_selected), contentDescription = null,
+                                modifier = Modifier
+                                    .background(Color.White)
+                                    .size(50.dp)
+                            )
+                            Image(painter = painterResource(id = R.drawable.bus), contentDescription = null,modifier = Modifier
+                                .background(Color.White)
+                                .size(50.dp)
+                            )
+                            Image(painter = painterResource(id = R.drawable.bike), contentDescription = null,modifier = Modifier
+                                .background(Color.White)
+                                .size(50.dp)
+                            )
+                        }
+                    }
+
+
+
+
 
 
                 }
+
+
+
+
+
+
+
             }
         }
     )
@@ -370,4 +438,21 @@ fun DisplayToast(error:Boolean){
     }
 
 }
+@Composable
+fun MapViewContainer() {
+    val context = LocalContext.current
 
+    AndroidView(
+        modifier = Modifier.fillMaxSize(),
+        factory = { MapView(context) },
+        update = { mapView ->
+            mapView.setTileSource(TileSourceFactory.MAPNIK)
+
+            // Définir les coordonnées pour l'Algérie
+            val geoPoint = GeoPoint(28.0, 2.0) // Coordonnées approximatives pour l'Algérie[^1^][2]
+
+            mapView.controller.setCenter(geoPoint)
+            mapView.controller.setZoom(6.0) // Ajustez le niveau de zoom selon vos besoins
+        }
+    )
+}
