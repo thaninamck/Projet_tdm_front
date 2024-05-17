@@ -1,9 +1,15 @@
 package com.example.easypark_api_front.screens
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,6 +41,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,30 +63,44 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.location.LocationManagerCompat.getCurrentLocation
 import androidx.navigation.NavController
+import com.example.easypark_api_front.MypActivity
 import com.example.easypark_api_front.R
 import com.example.easypark_api_front.Routes
-
 import com.example.easypark_api_front.viewModal
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import kotlinx.coroutines.launch
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import org.osmdroid.views.MapView
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.rememberCameraPositionState
+import org.jetbrains.annotations.Contract
 import com.google.android.gms.maps.model.LatLng
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.util.GeoPoint
+import com.google.android.gms.tasks.CancellationTokenSource
+import androidx.compose.runtime.remember
+import com.example.easypark_api_front.MainActivity
+import com.google.accompanist.permissions.PermissionStatus
+import com.google.accompanist.permissions.rememberPermissionState
 
-
-@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("CoroutineCreationDuringComposition")
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
-fun displayGeoCard(navController: NavController,viewModal: viewModal){
-
+fun displayGeoCard(navController: NavController,viewModal: viewModal) {
+    val context = LocalContext.current
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var searchQuery by remember { mutableStateOf("") }
-
 
 
 
@@ -378,7 +399,6 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal){
                         .fillMaxWidth()
                         .padding(10.dp)) {
 
-                        MapViewContainer() // Ajoutez ceci pour afficher la carte
 
                         Row(
                             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -397,8 +417,63 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal){
                                 .background(Color.White)
                                 .size(50.dp)
                             )
+
+
+
+
                         }
-                    }
+
+
+
+
+                        // Demandez la permission de localisation
+                        val permissionState = rememberPermissionState(android.Manifest.permission.ACCESS_FINE_LOCATION)
+                        LaunchedEffect(permissionState) {
+                            permissionState.launchPermissionRequest()
+                        }
+
+                        val scope = rememberCoroutineScope()
+                        var location by remember { mutableStateOf(LatLng(0.0, 0.0)) } // Initialisez avec une valeur par défaut
+                        var showMap by remember { mutableStateOf(false) }
+
+                        // Vérifiez si la permission a été accordée
+                        when (permissionState.status) {
+                            PermissionStatus.Granted -> {
+                                LaunchedEffect(key1 = Unit) {
+                                    scope.launch {
+                                        (context as MainActivity).getCurrentLocation(
+                                            onGetCurrentLocationSuccess = { latLng ->
+                                                location = LatLng(latLng.first, latLng.second)
+                                                showMap = true
+                                            },
+                                            onGetCurrentLocationFailed = { exception ->
+                                                // Gérez l'erreur ici
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+
+
+                            else -> {}
+                        }
+
+
+
+                        if (showMap) {
+                            MyMap(
+                                context = context,
+                                latLng = location,
+                                )
+                        } else {
+                            Text(text = "Loading Map...")
+                        }
+
+
+
+
+
+                    }//fin du box
 
 
 
@@ -438,21 +513,5 @@ fun DisplayToast(error:Boolean){
     }
 
 }
-@Composable
-fun MapViewContainer() {
-    val context = LocalContext.current
 
-    AndroidView(
-        modifier = Modifier.fillMaxSize(),
-        factory = { MapView(context) },
-        update = { mapView ->
-            mapView.setTileSource(TileSourceFactory.MAPNIK)
 
-            // Définir les coordonnées pour l'Algérie
-            val geoPoint = GeoPoint(28.0, 2.0) // Coordonnées approximatives pour l'Algérie[^1^][2]
-
-            mapView.controller.setCenter(geoPoint)
-            mapView.controller.setZoom(6.0) // Ajustez le niveau de zoom selon vos besoins
-        }
-    )
-}
