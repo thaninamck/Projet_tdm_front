@@ -68,7 +68,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.location.LocationManagerCompat.getCurrentLocation
 import androidx.navigation.NavController
-import com.example.easypark_api_front.MypActivity
 import com.example.easypark_api_front.R
 import com.example.easypark_api_front.Routes
 import com.example.easypark_api_front.viewModal
@@ -102,7 +101,10 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
     val scope = rememberCoroutineScope()
     var searchQuery by remember { mutableStateOf("") }
 
+    LaunchedEffect(Unit) {
+        viewModal.getAllParkings()
 
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -240,7 +242,9 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceAround,
-                            modifier=Modifier.fillMaxWidth().padding(20.dp)
+                            modifier= Modifier
+                                .fillMaxWidth()
+                                .padding(20.dp)
 
                         ) {
                             Text(text = "RESULT",style = TextStyle(
@@ -266,65 +270,87 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
 
                         }
 
-                        //Loader(loading = viewModal.loading.value)
-                        LazyColumn {
-                            items(viewModal.data.value.filter {
-                                it.nom.contains(searchQuery, ignoreCase = true) ||
-                                        it.address.contains(searchQuery, ignoreCase = true)
-                            }) { parking ->
-                                Column(
-                                    modifier = Modifier
-                                        .clickable {
-                                            var parkingId = parking.id
-                                            navController.navigate(
-                                                Routes.ParkingDetail.getUrlWithId(
-                                                    parkingId.toString()
+                        if (viewModal.error.value) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(text = "Error while fetching parkings")
+                            }
+                        } else {
+                            LazyColumn {
+
+                                items(viewModal.data.value.filter {
+                                    it.nom.contains(searchQuery, ignoreCase = true) ||
+                                            it.address.contains(searchQuery, ignoreCase = true)
+                                }) { parking ->
+                                    Column(
+                                        modifier = Modifier
+                                            .clickable {
+                                                var parkingId = parking.id
+                                                navController.navigate(
+                                                    Routes.ParkingDetail.getUrlWithId(
+                                                        parkingId.toString()
+                                                    )
                                                 )
-                                            )
-                                        }
-                                        .fillMaxWidth()
-                                        .padding(top = 20.dp, start = 5.dp)
+                                            }
+                                            .fillMaxWidth()
+                                            .padding(top = 20.dp, start = 5.dp)
 
-                                ) {
-                                    Row(
-                                        modifier=Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween) {
-                                        Image(painter = painterResource(id = R.drawable.parking_sign), contentDescription = "sort",modifier= Modifier
-                                            .padding(top = 8.dp, end = 10.dp)
-                                            .size(45.dp))
-                                        Column(
-                                            modifier=Modifier.padding(2.dp),
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween
                                         ) {
-                                            Text(text = parking.nom,style = TextStyle(
-                                                color = Color(0xFF192342),
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = 16.sp))
+                                            Image(
+                                                painter = painterResource(id = R.drawable.parking_sign),
+                                                contentDescription = "sort",
+                                                modifier = Modifier
+                                                    .padding(top = 8.dp, end = 10.dp)
+                                                    .size(45.dp)
+                                            )
+                                            Column(
+                                                modifier = Modifier.padding(2.dp),
+                                            ) {
+                                                Text(
+                                                    text = parking.nom, style = TextStyle(
+                                                        color = Color(0xFF192342),
+                                                        fontWeight = FontWeight.Bold,
+                                                        fontSize = 16.sp
+                                                    )
+                                                )
 
-                                            Text(text = parking.address,style = TextStyle(
-                                                color = Color(0xFF677191),
-                                                fontWeight = FontWeight.Medium,
-                                                fontSize = 14.sp))
-                                        }
+                                                Text(
+                                                    text = parking.address, style = TextStyle(
+                                                        color = Color(0xFF677191),
+                                                        fontWeight = FontWeight.Medium,
+                                                        fontSize = 14.sp
+                                                    )
+                                                )
+                                            }
 
-                                        Column (
-                                            verticalArrangement = Arrangement.Center,
-                                            horizontalAlignment = Alignment.End,
+                                            Column(
+                                                verticalArrangement = Arrangement.Center,
+                                                horizontalAlignment = Alignment.End,
 
 
-                                        ){
-                                            Text(text = (parking.available_slots).toString()+"slots",style = TextStyle(
-                                                color = Color(0xFF192342),
-                                                fontWeight = FontWeight.SemiBold,
-                                                fontSize = 14.sp)
-                                               // modifier=Modifier.padding(start=11.dp,top = 17.dp)
-                                         )
+                                                ) {
+                                                Text(
+                                                    text = (parking.available_slots).toString() + "slots",
+                                                    style = TextStyle(
+                                                        color = Color(0xFF192342),
+                                                        fontWeight = FontWeight.SemiBold,
+                                                        fontSize = 14.sp
+                                                    )
+                                                    // modifier=Modifier.padding(start=11.dp,top = 17.dp)
+                                                )
+                                            }
                                         }
                                     }
                                 }
                             }
+
                         }
-
-
                     }
                 }
 
@@ -400,28 +426,7 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                         .padding(10.dp)) {
 
 
-                        Row(
-                            horizontalArrangement = Arrangement.SpaceEvenly,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Image(painter = painterResource(id = R.drawable.car_not_selected), contentDescription = null,
-                                modifier = Modifier
-                                    .background(Color.White)
-                                    .size(50.dp)
-                            )
-                            Image(painter = painterResource(id = R.drawable.bus), contentDescription = null,modifier = Modifier
-                                .background(Color.White)
-                                .size(50.dp)
-                            )
-                            Image(painter = painterResource(id = R.drawable.bike), contentDescription = null,modifier = Modifier
-                                .background(Color.White)
-                                .size(50.dp)
-                            )
 
-
-
-
-                        }
 
 
 
@@ -458,19 +463,106 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                             else -> {}
                         }
 
-
+                        val parkingLocations = viewModal.data.value.map { parking ->
+                            val coordinates = parking.localization.split(",").map { it.toDouble() }
+                            LatLng(coordinates[0], coordinates[1])
+                        }
 
                         if (showMap) {
                             MyMap(
                                 context = context,
                                 latLng = location,
+                               parkingLocations =parkingLocations
                                 )
                         } else {
-                            Text(text = "Loading Map...")
+                            Column (
+                                modifier=Modifier.fillMaxSize(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+
+                            ){
+                                Text(text = "Loading Map...")
+                            }
+
                         }
 
+                        var carSelected by remember { mutableStateOf(false) }
+                        var busSelected by remember { mutableStateOf(false) }
+                        var motoSelected by remember { mutableStateOf(false) }
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+
+                            Column (
+                                modifier=Modifier.size(55.dp).background(Color.White).shadow(elevation = 10.dp,
+                                    shape = RoundedCornerShape(10.dp),
+                                    // Réduisez l'opacité en définissant votre propre couleur d'ombre
+                                    // Ici, l'opacité est réglée sur 50%
+                                    ambientColor=Color(0f, 0f, 0f, 0.5f)
+                                ).clip(RoundedCornerShape(15.dp)),
+
+                            ){
+                                Image(painter =if(carSelected){painterResource(id = R.drawable.car_selected)}else painterResource(id = R.drawable.car_not_selected), contentDescription = null,
+                                    modifier = Modifier
+                                        .background(Color.White)
+                                        .size(50.dp).padding(4.dp).clickable {
+                                            if (!carSelected){
+                                                carSelected=true
+                                                motoSelected=false
+                                                busSelected=false
+                                            }
+                                             }
+                                )
+                            }
 
 
+                            Column(
+                            modifier=Modifier.size(55.dp).background(Color.White).shadow(elevation = 10.dp,
+                                shape = RoundedCornerShape(10.dp),
+                                // Réduisez l'opacité en définissant votre propre couleur d'ombre
+                                // Ici, l'opacité est réglée sur 50%
+                                ambientColor=Color(0f, 0f, 0f, 0.5f)
+                            ).clip(RoundedCornerShape(15.dp)),
+
+                            ){
+                            Image(painter =if(busSelected){painterResource(id = R.drawable.bus_selected)}else
+                            painterResource(id = R.drawable.bus), contentDescription = null,modifier = Modifier
+                                .background(Color.White)
+                                .size(50.dp).padding(4.dp).clickable { if (!busSelected){
+                                                                busSelected=true
+                                                                carSelected=false
+                                                                motoSelected=false
+                                                            } }
+                            )}
+
+                            Column(
+                                modifier=Modifier.size(55.dp).background(Color.White).shadow(elevation = 10.dp,
+                                    shape = RoundedCornerShape(10.dp),
+                                    // Réduisez l'opacité en définissant votre propre couleur d'ombre
+                                    // Ici, l'opacité est réglée sur 50%
+                                    ambientColor=Color(0f, 0f, 0f, 0.5f)
+                                ).clip(RoundedCornerShape(15.dp)),
+
+                                ) {
+                                Image(
+                                    painter = if(motoSelected){painterResource(id = R.drawable.bike_selected)}else painterResource(id = R.drawable.bike),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .background(Color.White)
+                                        .size(50.dp).clickable {
+                                            if (!motoSelected){
+                                                motoSelected=true
+                                                carSelected=false
+                                                busSelected=false
+                                            }
+                                             }
+                                )
+
+                            }
+
+
+                        }
 
 
                     }//fin du box
@@ -492,10 +584,7 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
         }
     )
 
-    LaunchedEffect(Unit) {
-        viewModal.getAllParkings()
 
-    }
 
     }
 

@@ -51,7 +51,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 fun MyMap(
     context: Context,
     latLng: LatLng,
-
+    parkingLocations: List<LatLng>,
     mapProperties: MapProperties = MapProperties(),
 ) {
     val latlangList = remember {
@@ -79,11 +79,20 @@ fun MyMap(
                     state = MarkerState(position = it),
                     title = "Location",
                     snippet = "Marker in current location",
-                    icon = bitmapDescriptor(context, R.drawable.car)
+                    icon = bitmapDescriptor(context, R.drawable.car_marker)
 
                 )
             }
 
+
+            parkingLocations.forEach { latLng ->
+                Marker(
+                    state = MarkerState(position = latLng),
+                    title = "Parking Location",
+                    snippet = "Marker for parking location",
+                    icon = bitmapDescriptor(context, R.drawable.parking_sign)
+                )
+            }
 
 
         }
