@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -21,9 +20,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -35,10 +36,21 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.easypark_api_front.R
 
+<<<<<<< HEAD
 import com.example.easypark_api_front.model.reservation
+=======
+import com.example.easypark_api_front.Routes
+import com.example.easypark_api_front.viewModal
+>>>>>>> 19dbba630e15edb23bdf02aff3974fe1f762e5ec
 
 @Composable
-fun myReservations(navController: NavController){
+fun myReservations(navController: NavController, viewModal: viewModal){
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        viewModal.getMyReservations(context)
+    }
+
+    val reservations = viewModal.reservation_data.value
 
     Column(modifier=Modifier.fillMaxSize()) {
 
@@ -92,6 +104,7 @@ fun myReservations(navController: NavController){
             ),
             shape = RoundedCornerShape(15.dp),
         )
+<<<<<<< HEAD
        var reservations= listOf<reservation>(
            reservation().apply {
            id = 0
@@ -113,15 +126,15 @@ fun myReservations(navController: NavController){
 
 
        })
+=======
+>>>>>>> 19dbba630e15edb23bdf02aff3974fe1f762e5ec
         LazyColumn {
-            items(reservations) {
-                reservation ->
+            items(reservations ?: emptyList()) { reservation ->
                 Column(
 
                     modifier = Modifier
                         .clickable {
-                            //var parkingId = parking.id
-                            //navController.navigate(Routes.ParkingDetail.getUrlWithId(parkingId.toString()))
+                            navController.navigate(Routes.ParkingDetail.getUrlWithId(reservation.parking_id.toString()))
                         }
                         .padding(start=16.dp,top=30.dp)) {
                     Row (modifier=Modifier.fillMaxWidth()){
@@ -130,27 +143,18 @@ fun myReservations(navController: NavController){
                             .size(30.dp))
                         Column (modifier= Modifier
                             .padding(10.dp)){
-                            Text(text =  reservation.parkingName,style = TextStyle(
+                            Text(text =  reservation.parking_name,style = TextStyle(
                                 color = Color(0xFF192342),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 18.sp)
                             )
 
-                            Text(text = reservation.available_slots,style = TextStyle(
+                            Text(text = reservation.date,style = TextStyle(
                                 color = Color(0xFF677191),
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 16.sp)
                             )
                         }
-
-                            Text(text = (reservation.date).toString(),style = TextStyle(
-                                color = Color(0xFF192342),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp),
-                                modifier= Modifier
-                                    .padding(start=200.dp))
-
-
                     }
                 }
             }

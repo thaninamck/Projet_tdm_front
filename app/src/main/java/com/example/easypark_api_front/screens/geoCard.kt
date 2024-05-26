@@ -1,6 +1,12 @@
 package com.example.easypark_api_front.screens
 
 import android.annotation.SuppressLint
+
+import android.content.Context
+import android.content.pm.PackageManager
+import android.location.LocationManager
+import android.os.Bundle
+import android.view.View.OnClickListener
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,6 +28,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -83,9 +90,10 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
 
 
 
+    val success by viewModal.success
+
     LaunchedEffect(Unit) {
         viewModal.getAllParkings()
-
     }
 
     ModalNavigationDrawer(
@@ -161,6 +169,7 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.Top){
                     Row(modifier=Modifier.fillMaxWidth(),
+
                         ) {
                         Image(modifier= Modifier
 
@@ -172,12 +181,17 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                             }
                             ,painter = painterResource(id = R.drawable.logout),
                             contentDescription = null)
-                        Text(text = "Logout",style = TextStyle(
-                            color = Color(0xFF192342),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp),
-                            modifier= Modifier.padding(start=10.dp)
-                        )
+                        Button(onClick = {
+                           // viewModal.logoutUser(context)
+                        }) {
+                            Text(text = "Logout",style = TextStyle(
+                                color = Color(0xFF192342),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp),
+                                modifier= Modifier.padding(start=10.dp)
+                            )
+                        }
+
                     }
                 }
             }
@@ -500,17 +514,23 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                         ) {
 
                             Column (
-                                modifier=Modifier.size(55.dp).background(Color.White).shadow(elevation = 10.dp,
-                                    shape = RoundedCornerShape(10.dp),
-                                    // Réduisez l'opacité en définissant votre propre couleur d'ombre
-                                    // Ici, l'opacité est réglée sur 50%
-                                    ambientColor=Color(0f, 0f, 0f, 0.5f)
-                                ).clip(RoundedCornerShape(15.dp)),
+                                modifier= Modifier
+                                    .size(55.dp)
+                                    .background(Color.White)
+                                    .shadow(
+                                        elevation = 10.dp,
+                                        shape = RoundedCornerShape(10.dp),
+                                        // Réduisez l'opacité en définissant votre propre couleur d'ombre
+                                        // Ici, l'opacité est réglée sur 50%
+                                        ambientColor = Color(0f, 0f, 0f, 0.5f)
+                                    )
+                                    .clip(RoundedCornerShape(15.dp)),
 
                             ){
                                 Image(painter =if(carSelected){painterResource(id = R.drawable.car_selected)}else painterResource(id = R.drawable.car_not_selected), contentDescription = "car",
                                     modifier = Modifier
                                         .background(Color.White)
+
                                         .size(50.dp).padding(4.dp).clickable {
                                             if (!carSelected){
                                                 carSelected=true
@@ -524,19 +544,25 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
 
 
 
+
                                             }
-                                             }
+                                        }
                                 )
                             }
 
 
                             Column(
-                            modifier=Modifier.size(55.dp).background(Color.White).shadow(elevation = 10.dp,
-                                shape = RoundedCornerShape(10.dp),
-                                // Réduisez l'opacité en définissant votre propre couleur d'ombre
-                                // Ici, l'opacité est réglée sur 50%
-                                ambientColor=Color(0f, 0f, 0f, 0.5f)
-                            ).clip(RoundedCornerShape(15.dp)),
+                            modifier= Modifier
+                                .size(55.dp)
+                                .background(Color.White)
+                                .shadow(
+                                    elevation = 10.dp,
+                                    shape = RoundedCornerShape(10.dp),
+                                    // Réduisez l'opacité en définissant votre propre couleur d'ombre
+                                    // Ici, l'opacité est réglée sur 50%
+                                    ambientColor = Color(0f, 0f, 0f, 0.5f)
+                                )
+                                .clip(RoundedCornerShape(15.dp)),
 
                             ){
                             Image(painter =if(busSelected){painterResource(id = R.drawable.bus_selected)}else
@@ -553,15 +579,21 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                                     }
 
                                 } }
+
                             )}
 
                             Column(
-                                modifier=Modifier.size(55.dp).background(Color.White).shadow(elevation = 10.dp,
-                                    shape = RoundedCornerShape(10.dp),
-                                    // Réduisez l'opacité en définissant votre propre couleur d'ombre
-                                    // Ici, l'opacité est réglée sur 50%
-                                    ambientColor=Color(0f, 0f, 0f, 0.5f)
-                                ).clip(RoundedCornerShape(15.dp)),
+                                modifier= Modifier
+                                    .size(55.dp)
+                                    .background(Color.White)
+                                    .shadow(
+                                        elevation = 10.dp,
+                                        shape = RoundedCornerShape(10.dp),
+                                        // Réduisez l'opacité en définissant votre propre couleur d'ombre
+                                        // Ici, l'opacité est réglée sur 50%
+                                        ambientColor = Color(0f, 0f, 0f, 0.5f)
+                                    )
+                                    .clip(RoundedCornerShape(15.dp)),
 
                                 ) {
                                 Image(
@@ -583,6 +615,7 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                                             }
 
                                              }
+
                                 )
 
                             }
@@ -611,8 +644,7 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
     )
 
 
-
-    }
+}
 
 @Composable
 fun Loader(loading:Boolean){

@@ -1,6 +1,7 @@
 package com.example.easypark_api_front.screens
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,12 +24,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -37,12 +40,15 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.easypark_api_front.R
+import com.example.easypark_api_front.viewModal
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun displaySignIn() {
+fun displaySignIn(navController: NavController, viewModal: viewModal) {
+    var context = LocalContext.current;
     Column(modifier = Modifier
         .fillMaxSize(),
 
@@ -85,9 +91,9 @@ fun displaySignIn() {
                 verticalArrangement = Arrangement.SpaceBetween
             ){
 
-                var email by rememberSaveable { mutableStateOf("") }
+                var fullname by rememberSaveable { mutableStateOf("") }
                 var password by rememberSaveable { mutableStateOf("") }
-
+                var emptyFieldsError by remember { mutableStateOf(false) }
                 val keyboardController = LocalSoftwareKeyboardController.current
 
 
@@ -98,16 +104,16 @@ fun displaySignIn() {
                     modifier = Modifier
                         .width(332.dp)
                         .padding(top = 10.dp),
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text(text = "Email") },
-                    placeholder = { Text(text = "Enter your email") },
+                    value = fullname,
+                    onValueChange = { fullname = it },
+                    label = { Text(text = "Full name") },
+                    placeholder = { Text(text = "Enter your Full name") },
 
 
                     //supportingText = { Text(text = "Please use the company email address.") },
-                    isError = email.contains('.'),
+                    isError = fullname.contains('.'),
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email,
+                        keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Done
                     ),
                     shape = RoundedCornerShape(32.dp),
@@ -152,7 +158,14 @@ fun displaySignIn() {
                         containerColor = Color.Black,
                         disabledContainerColor = Color.Black
                     )
-                    , onClick = { /*TODO*/ }) {
+                    , onClick = {
+                            if (fullname.isEmpty() || password.isEmpty()) {
+                                emptyFieldsError = true
+                            } else {
+                                emptyFieldsError = false
+                                viewModal.loginUser(fullname, password, context)
+                            }
+                    }) {
                     Text(
                         text = "Sign in",
                         style = TextStyle(
@@ -214,19 +227,35 @@ fun displaySignIn() {
                     .padding(top = 40.dp)
 
             )
+            Button(onClick = {
+                navController.navigate(Routes.SignUp.route)
+            }) {
+                Text(
 
-            Text(
-                text = "Create an account", style = TextStyle(
-                    color = Color(0xFF000000),
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 15.sp,
+                    text = "Create an account", style = TextStyle(
+                        color = Color(0xFF000000),
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 15.sp,
 
-                    ),
+                        ),
 
-                //modifier=Modifier.padding(23.dp) // Ajouter une marge autour du texte si nécessaire
-            )
+                    //modifier=Modifier.padding(23.dp) // Ajouter une marge autour du texte si nécessaire
+                )
+            }
+
 
 
         }
+    }
+
+    successCheckLogin(sucess = viewModal.success.value, navController = navController)
+}
+
+
+fun successCheckLogin(sucess:Boolean,navController: NavController){
+    if (sucess){
+        navController.navigate(Routes.GeoCardSCreen.route)
+    }else{
+
     }
 }

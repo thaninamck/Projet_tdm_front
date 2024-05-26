@@ -1,4 +1,4 @@
-package com.example.easypark_api_front.model
+package com.example.easypark.model
 
 class Reservation {
     var id: Int = 0
@@ -7,7 +7,4 @@ class Reservation {
     var date:String=""
     var parking_slot: String = ""
     var parking_address: String = ""
-    var starthour:String=""
-    var duration:String=""
-
 }

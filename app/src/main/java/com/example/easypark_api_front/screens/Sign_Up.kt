@@ -55,6 +55,7 @@ import kotlinx.coroutines.launch
 @SuppressLint("UnrememberedMutableState")
 @Composable
 fun displaySignUp(navController: NavController,viewModal: viewModal) {
+    var context = LocalContext.current;
     Column(modifier = Modifier
         .fillMaxSize(),
 
@@ -227,7 +228,7 @@ fun displaySignUp(navController: NavController,viewModal: viewModal) {
                 }
                 if (emptyFieldsError) {
                     Text(
-                        text = "All Fields are obligatoire",
+                        text = "All Fields are obligatory",
                         color = Color.Red,
                         modifier = Modifier.padding(top = 8.dp)
                     )
@@ -254,7 +255,7 @@ fun displaySignUp(navController: NavController,viewModal: viewModal) {
                            } else {
                                 passwordMatchError = false
                                 emptyFieldsError = false
-                                viewModal.registerUser(full_name, phone_number, password1)
+                                viewModal.registerUser(full_name, phone_number, password1, context)
                                 }
                             }
                         })
@@ -272,9 +273,6 @@ fun displaySignUp(navController: NavController,viewModal: viewModal) {
                     )
                 }
             }
-
-
-
             Row (horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -344,9 +342,7 @@ fun displaySignUp(navController: NavController,viewModal: viewModal) {
 
 fun successCheck(sucess:Boolean,navController: NavController){
     if (sucess){
-        navController.navigate(Routes.notifications.route)
-
-    }else{
+        navController.navigate(Routes.GeoCardSCreen.route)
 
     }
 }
