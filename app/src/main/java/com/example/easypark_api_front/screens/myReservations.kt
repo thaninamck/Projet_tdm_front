@@ -34,9 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.easypark_api_front.R
-import com.example.easypark_api_front.Routes
 
-import com.example.easypark.model.reservation
+import com.example.easypark_api_front.model.reservation
 
 @Composable
 fun myReservations(navController: NavController){
@@ -93,14 +92,15 @@ fun myReservations(navController: NavController){
             ),
             shape = RoundedCornerShape(15.dp),
         )
-       var reservations= listOf<reservation>(reservation().apply {
+       var reservations= listOf<reservation>(
+           reservation().apply {
            id = 0
            date = "jndj"
            starthour = ""
            parkingName = "jndj"
            available_slots = "45"
            duration = ""
-           qrCode = ""
+
 
        },
                reservation().apply {
@@ -110,7 +110,7 @@ fun myReservations(navController: NavController){
                    available_slots = "45"
            starthour = ""
            duration = ""
-           qrCode = ""
+
 
        })
         LazyColumn {

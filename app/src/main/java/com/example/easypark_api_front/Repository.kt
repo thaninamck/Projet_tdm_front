@@ -10,6 +10,7 @@ class Repository(private val endpoint: Endpoint) {
         suspend  fun getAllParkings()=endpoint.getParkings()
         suspend  fun registerUser(user:User)=endpoint.registerUser(user)
         suspend  fun getParkingById(id:Int)=endpoint.getParkingById(id)
+        suspend  fun getParkingByType(type:String)=endpoint.getParkingByType(type)
 
 
 

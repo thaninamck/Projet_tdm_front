@@ -20,6 +20,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,10 +32,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.easypark_api_front.R
 import com.example.easypark_api_front.Routes
+import com.example.easypark_api_front.model.reservation
+import com.example.easypark_api_front.viewModal
 
 @Composable
-fun displayBooking1(navController:NavController){
+fun displayBooking1(navController:NavController,viewModal: viewModal){
 
+
+    var qr_code=viewModal.qrCode.value
     Column (modifier= Modifier
         .fillMaxSize()
         .background(Color.White),
@@ -82,20 +87,11 @@ fun displayBooking1(navController:NavController){
                     .width(253.dp)
 
                 )
-                Image(painter = painterResource(id = R.drawable.car), contentDescription ="car" ,modifier= Modifier
-                    .height(164.dp)
-                    .width(253.dp)
-                    .padding(2.dp)
-                )
+
             }
 
 
-            Text(text = "C08",style = TextStyle(
-                color = Color(0xFF677191),
-                fontWeight = FontWeight.Bold,
-                fontSize = 30.sp,
-            ),modifier= Modifier.padding( top = 50.dp, bottom = 20.dp)
-            )
+
         }
 
 
@@ -147,7 +143,6 @@ fun displayBooking1(navController:NavController){
                 )
             }
         }
-
 
 
     }

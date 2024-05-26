@@ -12,6 +12,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface Endpoint {
     companion object {
@@ -38,5 +39,8 @@ interface Endpoint {
 
     @GET("api/parking/{id}")
     suspend fun getParkingById(@Path("id") id: Int): Response<Parking>
+
+    @GET("api/parking/type")
+    suspend fun getParkingByType(@Query("supportedVehicule") supportedVehicule: String): Response<List<Parking>>
 
 }

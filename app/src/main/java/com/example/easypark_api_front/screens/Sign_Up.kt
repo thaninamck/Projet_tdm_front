@@ -337,9 +337,10 @@ fun displaySignUp(navController: NavController,viewModal: viewModal) {
 
         }
     }
+
     successCheck(sucess = viewModal.success.value, navController = navController)
 
-}
+}// end of composable function
 
 fun successCheck(sucess:Boolean,navController: NavController){
     if (sucess){

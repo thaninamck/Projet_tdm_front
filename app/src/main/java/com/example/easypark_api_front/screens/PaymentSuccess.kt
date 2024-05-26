@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,6 +21,8 @@ import com.example.easypark_api_front.Routes
 
 import androidx.navigation.NavController
 import com.example.easypark_api_front.R
+import kotlinx.coroutines.delay
+
 @Composable
 fun DisplayPaymentSucess(navController: NavController){
     Column (modifier=Modifier.fillMaxSize(),
@@ -27,7 +30,7 @@ fun DisplayPaymentSucess(navController: NavController){
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         Image(painter = painterResource(id = R.drawable.success), contentDescription ="sucess"
-        ,modifier=Modifier.size(100.dp))
+            ,modifier=Modifier.size(100.dp))
 
         Text(text = "Payment success!",style = TextStyle(
             color = Color(0xFF192342),
@@ -36,5 +39,9 @@ fun DisplayPaymentSucess(navController: NavController){
         ),modifier= Modifier.padding( top = 15.dp, bottom = 3.dp)
         )
 
+        LaunchedEffect(Unit) {
+            delay(3000)  // Attend 3 secondes
+            navController.navigate(Routes.parkingTicket.route)
+        }
     }
 }

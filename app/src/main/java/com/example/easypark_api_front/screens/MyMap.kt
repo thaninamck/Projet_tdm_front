@@ -3,21 +3,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,7 +19,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavController
 import com.example.easypark_api_front.R
+import com.example.easypark_api_front.Routes
+import com.example.easypark_api_front.ui.theme.LineType
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -45,21 +35,25 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 
 @Composable
 fun MyMap(
     context: Context,
     latLng: LatLng,
-    parkingLocations: List<LatLng>,
+    parkingLocations: List<Pair<LatLng, Int>>,
     mapProperties: MapProperties = MapProperties(),
+    navController: NavController
 ) {
     val latlangList = remember {
         mutableStateListOf(latLng)
     }
-    var mapTypeMenuExpanded by remember { mutableStateOf(false) }
-
-    var lineTypeMenuExpanded by remember { mutableStateOf(false) }
+    var selectedParking by remember { mutableStateOf<LatLng?>(null) }
 
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(latLng, 15f)
@@ -80,27 +74,73 @@ fun MyMap(
                     title = "Location",
                     snippet = "Marker in current location",
                     icon = bitmapDescriptor(context, R.drawable.car_marker)
-
                 )
             }
 
-
-            parkingLocations.forEach { latLng ->
+            parkingLocations.forEach { (latLng, parkingId) ->
                 Marker(
                     state = MarkerState(position = latLng),
                     title = "Parking Location",
-                    snippet = "Marker for parking location",
-                    icon = bitmapDescriptor(context, R.drawable.parking_sign)
+                    snippet = "Marker for parking location with ID: $parkingId",
+                    icon = bitmapDescriptor(context, R.drawable.parking_sign),
+                    onClick = {
+                        //selectedParking = latLng
+                        navController.navigate(
+                            Routes.ParkingDetail.getUrlWithId(
+                                parkingId.toString()
+                            )
+                        )
+                        true
+                    }
                 )
             }
 
-
+            if (selectedParking != null) {
+                Polyline(
+                    points = listOf(latLng, selectedParking!!),
+                    color = Color.Yellow,
+                    width = 5f
+                )
+                val distance = calculateDistance(latLng, selectedParking!!)
+                Text(
+                    text = "Distance: $distance km",
+                    modifier = Modifier
+                        .background(Color.White)
+                        .padding(8.dp),
+                    fontSize = 20.sp,
+                    color = Color.Black
+                )
+            }
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    }
+
+
+
+
 
 }
 
 
-    }
+
+
+
+
 
 fun bitmapDescriptor(
     context: Context,
@@ -118,4 +158,13 @@ fun bitmapDescriptor(
     val canvas = android.graphics.Canvas(bm)
     drawable.draw(canvas)
     return BitmapDescriptorFactory.fromBitmap(bm)
+}
+
+fun calculateDistance(start: LatLng, end: LatLng): Double {
+    val radius = 6371 // radius of the earth in km
+    val latDiff = Math.toRadians(end.latitude - start.latitude)
+    val lonDiff = Math.toRadians(end.longitude - start.longitude)
+    val a = sin(latDiff / 2).pow(2.0) + cos(Math.toRadians(start.latitude)) * cos(Math.toRadians(end.latitude)) * sin(lonDiff / 2).pow(2.0)
+    val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    return radius * c
 }

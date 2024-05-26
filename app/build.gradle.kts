@@ -106,6 +106,14 @@ dependencies {
     implementation ("com.google.maps.android:android-maps-utils:3.4.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
+    //pour le code QR
+    implementation ("com.google.zxing:core:3.4.1")
+    implementation ("androidx.compose.ui:ui-tooling:1.0.5")
+    implementation ("com.google.maps.android:android-maps-utils:3.4.0")
+    implementation ("androidx.compose.runtime:runtime-livedata:1.0.5")
+
+
+
 
 
 

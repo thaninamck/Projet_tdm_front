@@ -163,7 +163,7 @@ fun AppNavigation(viewModal: viewModal) {
         }
 
         composable(Routes.booking1.route){
-            displayBooking1(navController)
+            displayBooking1(navController,viewModal)
         }
 
         composable(Routes.booking2.route){
@@ -176,7 +176,7 @@ fun AppNavigation(viewModal: viewModal) {
             DisplayPaymentSucess(navController)
         }
         composable(Routes.parkingTicket.route){
-            displayTicket(navController)
+            displayTicket(navController,viewModal)
         }
         composable(Routes.pmyReservations.route){
             myReservations(navController)

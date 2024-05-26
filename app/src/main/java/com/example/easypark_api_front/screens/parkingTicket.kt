@@ -1,11 +1,15 @@
 package com.example.easypark_api_front.screens
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -17,19 +21,39 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.toSize
 import androidx.navigation.NavController
 import com.example.easypark_api_front.R
+import com.example.easypark_api_front.model.reservation
+import com.example.easypark_api_front.viewModal
 
 @Composable
-fun displayTicket(navController: NavController){
+fun displayTicket(navController: NavController,viewModal: viewModal){
+
+    LaunchedEffect(Unit) {
+
+       viewModal.updateReservation()
+
+    }
+    var reservation=viewModal.reservation_response.value
+    if (reservation != null) {
+        viewModal.updateQRCode(reservation)
+
+    }
+    var qr_code=viewModal.qrCode.value
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier= Modifier
@@ -45,7 +69,12 @@ fun displayTicket(navController: NavController){
             fontSize = 24.sp,
         ),modifier=Modifier.padding(start = 20.dp, top = 40.dp, bottom = 45.dp)
         )
-
+        Text(text = "Please keep this QrCode with you to confirm your reservation once you're in the parking ",style = TextStyle(
+            color = Color.White,
+            fontWeight = FontWeight.Medium,
+            fontSize = 19.sp,
+        ),modifier=Modifier.padding(start = 20.dp, top = 5.dp, bottom = 45.dp)
+        )
         Column (
 
             modifier= Modifier
@@ -79,7 +108,7 @@ fun displayTicket(navController: NavController){
             ),modifier=Modifier.padding(start = 20.dp, top = 43.dp, bottom = 2.dp)
             )
             Row() {
-                Text(text = "4hr ",style = TextStyle(
+                Text(text =reservation?.duration?:"",style = TextStyle(
                     color = Color(0xFF677191),
                     fontWeight = FontWeight.Medium,
                     fontSize = 18.sp,
@@ -91,7 +120,7 @@ fun displayTicket(navController: NavController){
                     fontSize = 18.sp,
                 ),modifier=Modifier.padding(start = 20.dp, bottom = 2.dp)
                 )
-                Text(text = "23 /2/2000",style = TextStyle(
+                Text(text = reservation?.date?:"",style = TextStyle(
                     color = Color(0xFF677191),
                     fontWeight = FontWeight.Medium,
                     fontSize = 18.sp,
@@ -108,7 +137,7 @@ fun displayTicket(navController: NavController){
                         fontSize = 24.sp,
                     ),modifier=Modifier.padding(start = 20.dp, top = 9.dp, bottom = 2.dp)
                     )
-                    Text(text = "A01",style = TextStyle(
+                    Text(text = reservation?.available_slots?:"",style = TextStyle(
                         color = Color(0xFF192342),
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp,
@@ -123,9 +152,13 @@ fun displayTicket(navController: NavController){
                         .width(900.dp)
                         .height(90.dp))
 
-            Column (horizontalAlignment = Alignment.CenterHorizontally){
-                Image(painter = painterResource(id = R.drawable.qr_code), contentDescription ="line"
-                    ,modifier=Modifier.width(400.dp).height(90.dp))
+            Column (
+                modifier=Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally){
+                if (qr_code != null) {
+                    Image(bitmap = qr_code, contentDescription = "Code QR pour la réservation", modifier = Modifier.size(120.dp))
+                }
             }
 
 
@@ -151,9 +184,11 @@ fun displayTicket(navController: NavController){
                     containerColor = Color(0xFF2C2D30),
                     disabledContainerColor = Color.Black
                 )
-                , onClick = { navController.navigate(Routes.booking2.route) }) {
+                , onClick = {
+
+                    navController.navigate(Routes.GeoCardSCreen.route) }) {
                 Text(
-                    text = "Download",
+                    text = "Finish",
                     style = TextStyle(
                         color = Color.White,
                         fontWeight = FontWeight.SemiBold,
@@ -167,3 +202,10 @@ fun displayTicket(navController: NavController){
     }
 
 }
+
+
+
+
+
+
+

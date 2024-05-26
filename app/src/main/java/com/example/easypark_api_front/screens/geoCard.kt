@@ -1,15 +1,7 @@
 package com.example.easypark_api_front.screens
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
-import android.content.pm.PackageManager
-import android.location.LocationManager
-import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,7 +9,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.BottomSheetScaffold
@@ -41,7 +33,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,44 +53,35 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.location.LocationManagerCompat.getCurrentLocation
 import androidx.navigation.NavController
+import com.example.easypark_api_front.MainActivity
 import com.example.easypark_api_front.R
 import com.example.easypark_api_front.Routes
 import com.example.easypark_api_front.viewModal
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberPermissionState
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
-import kotlinx.coroutines.launch
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.rememberCameraPositionState
-import org.jetbrains.annotations.Contract
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.tasks.CancellationTokenSource
-import androidx.compose.runtime.remember
-import com.example.easypark_api_front.MainActivity
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.launch
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberModalBottomSheetState
+
 
 @SuppressLint("CoroutineCreationDuringComposition")
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class,
+    ExperimentalMaterialApi::class
+)
 @Composable
 fun displayGeoCard(navController: NavController,viewModal: viewModal) {
     val context = LocalContext.current
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var searchQuery by remember { mutableStateOf("") }
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberModalBottomSheetState()
+    )
+
+
 
     LaunchedEffect(Unit) {
         viewModal.getAllParkings()
@@ -184,7 +166,11 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
 
 
                             .shadow(elevation = 4.dp)
-                            .size(20.dp),painter = painterResource(id = R.drawable.logout),
+                            .size(20.dp)
+                            .clickable {
+                                       navController.navigate(Routes.paymentSuccess.route)
+                            }
+                            ,painter = painterResource(id = R.drawable.logout),
                             contentDescription = null)
                         Text(text = "Logout",style = TextStyle(
                             color = Color(0xFF192342),
@@ -203,6 +189,7 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
             var query by remember { mutableStateOf("") }
             var active by remember { mutableStateOf(false) }
             BottomSheetScaffold(
+                scaffoldState = scaffoldState,
                 sheetShadowElevation = 45.dp,
                 sheetSwipeEnabled = true,
                 sheetShape = RoundedCornerShape(20.dp),
@@ -365,65 +352,79 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                     verticalArrangement = Arrangement.Top
 
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceAround,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 70.dp)
-                    ) {
-                        Image(modifier= Modifier
-                            .padding(end = 90.dp)
-                            .size(35.dp)
-                            .clickable {
-                                scope.launch { drawerState.open() }
-                            }
-                            ,painter = painterResource(id = R.drawable.menu_icon), contentDescription = null)
 
-                        Image(modifier= Modifier
-                            .clip(CircleShape)
+                    Column(modifier = Modifier
+                        .clip(RoundedCornerShape(15.dp))
+                        .background(Color.Yellow)
+                        ,
 
-                            .padding(start = 90.dp)
-                            .shadow(elevation = 4.dp)
-                            .size(35.dp),painter = painterResource(id = R.drawable.avatar),
-                            contentDescription = null)
+                        ){
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceAround,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 50.dp)
+                                .background(Color.Yellow),
+                        ) {
+                            Image(modifier= Modifier
+                                .padding(end = 90.dp)
+                                .size(35.dp)
+                                .clickable {
+                                    scope.launch { drawerState.open() }
+                                }
+                                ,painter = painterResource(id = R.drawable.menu_icon), contentDescription = null)
+
+                            Image(modifier= Modifier
+                                .clip(CircleShape)
+
+                                .padding(start = 90.dp)
+                                .shadow(elevation = 4.dp)
+                                .size(35.dp),painter = painterResource(id = R.drawable.avatar),
+                                contentDescription = null)
 
 
 
+
+                        }
+
+                        TextField(
+                            value = "",
+
+                            onValueChange = {},
+                            placeholder = {
+                                Text(buildAnnotatedString {
+                                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, color = Color.Gray, fontSize = 14.sp)) {
+                                        append("Where to park?")
+                                    }
+                                })
+                            },
+                            modifier= Modifier
+                                .padding(start = 25.dp)
+                                .width(336.dp)
+                                .padding(top = 20.dp,bottom=10.dp)
+                                .shadow(elevation = 8.dp),
+                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor =  Color.White,
+                                unfocusedContainerColor = Color.White,
+                                cursorColor = Color.White,
+
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent
+                            ),
+                            shape = RoundedCornerShape(10.dp),
+                        )
 
                     }
 
-                    TextField(
-                        value = "",
 
-                        onValueChange = {},
-                        placeholder = {
-                            Text(buildAnnotatedString {
-                                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, color = Color.Gray, fontSize = 14.sp)) {
-                                    append("Where to park?")
-                                }
-                            })
-                        },
-                        modifier= Modifier
-                            .padding(start = 25.dp)
-                            .width(336.dp)
-                            .padding(top = 50.dp)
-                            .shadow(elevation = 8.dp),
-                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor =  Color.White,
-                            unfocusedContainerColor = Color.White,
-                            cursorColor = Color.White,
 
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent
-                        ),
-                        shape = RoundedCornerShape(10.dp),
-                    )
 
 
                     Box(modifier = Modifier
                         .fillMaxWidth()
-                        .padding(10.dp)) {
+                        .padding(start=2.dp,end=10.dp,bottom=10.
+                        dp)) {
 
 
 
@@ -465,14 +466,17 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
 
                         val parkingLocations = viewModal.data.value.map { parking ->
                             val coordinates = parking.localization.split(",").map { it.toDouble() }
-                            LatLng(coordinates[0], coordinates[1])
+                            val latLng = LatLng(coordinates[0], coordinates[1])
+                            val parkingId = parking.id
+                            Pair(latLng, parkingId)
                         }
 
                         if (showMap) {
                             MyMap(
                                 context = context,
                                 latLng = location,
-                               parkingLocations =parkingLocations
+                               parkingLocations =parkingLocations,
+                                navController = navController
                                 )
                         } else {
                             Column (
@@ -489,9 +493,10 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                         var carSelected by remember { mutableStateOf(false) }
                         var busSelected by remember { mutableStateOf(false) }
                         var motoSelected by remember { mutableStateOf(false) }
+
                         Row(
                             horizontalArrangement = Arrangement.SpaceEvenly,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth().padding(top=5.dp)
                         ) {
 
                             Column (
@@ -503,7 +508,7 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                                 ).clip(RoundedCornerShape(15.dp)),
 
                             ){
-                                Image(painter =if(carSelected){painterResource(id = R.drawable.car_selected)}else painterResource(id = R.drawable.car_not_selected), contentDescription = null,
+                                Image(painter =if(carSelected){painterResource(id = R.drawable.car_selected)}else painterResource(id = R.drawable.car_not_selected), contentDescription = "car",
                                     modifier = Modifier
                                         .background(Color.White)
                                         .size(50.dp).padding(4.dp).clickable {
@@ -511,6 +516,14 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                                                 carSelected=true
                                                 motoSelected=false
                                                 busSelected=false
+                                                viewModal.getParkingByType("car")
+                                                scope.launch {
+                                                    scaffoldState.bottomSheetState.expand()
+                                                    carSelected=false
+                                                }
+
+
+
                                             }
                                              }
                                 )
@@ -533,7 +546,13 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                                                                 busSelected=true
                                                                 carSelected=false
                                                                 motoSelected=false
-                                                            } }
+                                    viewModal.getParkingByType("bus")
+                                    scope.launch {
+                                        scaffoldState.bottomSheetState.expand()
+                                        busSelected=false
+                                    }
+
+                                } }
                             )}
 
                             Column(
@@ -555,7 +574,14 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                                                 motoSelected=true
                                                 carSelected=false
                                                 busSelected=false
+                                                viewModal.getParkingByType("bike")
+                                                scope.launch {
+                                                    scaffoldState.bottomSheetState.expand()
+                                                    motoSelected=false
+                                                }
+
                                             }
+
                                              }
                                 )
 
