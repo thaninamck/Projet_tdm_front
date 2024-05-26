@@ -3,6 +3,7 @@ package com.example.easypark_api_front
 sealed class Routes (val route: String) {
 
     object SignUp : Routes("signUp")
+    object SignIn : Routes("signIn")
     object WelcomeScreen : Routes("welcomeScreen")
     object Splashscreen : Routes("splashScreen")
     object SignInScreen : Routes("SignIn")
