@@ -2,6 +2,7 @@ package com.example.easypark_api_front
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -9,14 +10,34 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -39,6 +60,8 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import kotlinx.coroutines.delay
+import java.time.format.TextStyle
 
 class MainActivity : ComponentActivity() {
     private val viewmodal: viewModal by viewModels{
@@ -128,7 +151,7 @@ fun AppNavigation(viewModal: viewModal) {
 
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = Routes.GeoCardSCreen.route) {
+    NavHost(navController = navController, startDestination = Routes.Splashscreen.route) {
 
 
 
@@ -140,8 +163,8 @@ fun AppNavigation(viewModal: viewModal) {
             displaySignUp(navController,viewModal)
         }
 
-        composable(Routes.SignInScreen.route){
-            displaySignIn()
+        composable(Routes.SignIn.route){
+            displaySignIn(navController,viewModal)
         }
 
         composable(Routes.GeoCardSCreen.route){
@@ -158,7 +181,7 @@ fun AppNavigation(viewModal: viewModal) {
             if (parkingId != null) {
              parkingDetails(parkingId=parkingId,navController,viewModal)
             } else {
-                displaySignIn()
+                displaySignIn(navController,viewModal)
             }
         }
 
@@ -179,11 +202,55 @@ fun AppNavigation(viewModal: viewModal) {
             displayTicket(navController)
         }
         composable(Routes.pmyReservations.route){
-            myReservations(navController)
+            myReservations(navController, viewModal)
         }
 
         composable(Routes.notifications.route){
             displayNotifications(navController)
         }
+
+        composable(Routes.Splashscreen.route){
+            SplashScreen(navController)
+        }
+    }
+}
+
+
+@Composable
+fun SplashScreen(navController: NavController) {
+    var startAnimation by remember { mutableStateOf(false) }
+    var context = LocalContext.current
+    LaunchedEffect(Unit) {
+        delay(3000) // Attendre 6 secondes
+        val pref = context.getSharedPreferences("fileName" ,Context.MODE_PRIVATE)
+        val authToken = pref.getString("token", "none")
+        if (authToken == "none") {
+            navController.navigate(Routes.SignIn.route)
+        }else {
+           navController.navigate(Routes.GeoCardSCreen.route)
+        }
+
+
+    }
+
+    val yellow = colorResource(id = R.color.yellow)
+    val black = colorResource(id = R.color.black)
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(yellow)
+            .alpha(if (startAnimation) 1f else 0f),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.easypark),
+            contentDescription = null,
+            modifier = Modifier.size(178.dp),
+        )
+        Text(
+            text = "EasyPark",
+        )
     }
 }
