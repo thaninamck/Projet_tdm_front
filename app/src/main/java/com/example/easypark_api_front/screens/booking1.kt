@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.easypark_api_front.R
 import com.example.easypark_api_front.Routes
-import com.example.easypark_api_front.model.reservation
+import com.example.easypark_api_front.model.Reservation
 import com.example.easypark_api_front.viewModal
 
 @Composable

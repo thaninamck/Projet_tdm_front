@@ -3,8 +3,11 @@ package com.example.easypark_api_front.screens
 
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -51,6 +54,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @SuppressLint("UnrememberedMutableState")
 @Composable
@@ -306,7 +310,11 @@ fun displaySignUp(navController: NavController,viewModal: viewModal) {
                 modifier = Modifier
                     .size(30.dp)
                     .padding(1.dp)
-                ,
+                    .clickable {
+
+                        viewModal.signInWithGoogle(context)
+
+                    },
             )
 
             Text(text = "already have an account ? ", style = TextStyle(

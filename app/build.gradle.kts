@@ -112,6 +112,11 @@ dependencies {
     implementation ("com.google.maps.android:android-maps-utils:3.4.0")
     implementation ("androidx.compose.runtime:runtime-livedata:1.0.5")
 
+    //pour l'authentification google
+    implementation("androidx.credentials:credentials:1.3.0-alpha04")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0-alpha04")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.0")
+
 
 
 

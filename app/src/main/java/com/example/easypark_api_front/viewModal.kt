@@ -1,6 +1,7 @@
 package com.example.easypark_api_front
 
 
+    import android.annotation.SuppressLint
     import android.graphics.Bitmap
     import android.graphics.Color.BLACK
     import android.graphics.Color.WHITE
@@ -9,7 +10,16 @@ package com.example.easypark_api_front
     import androidx.compose.ui.graphics.asImageBitmap
 
     import android.content.Context
+    import android.credentials.GetCredentialException
+    import android.os.Build
     import android.util.Log
+    import androidx.annotation.RequiresApi
+    import androidx.compose.runtime.Composable
+    import androidx.compose.ui.platform.LocalContext
+    import androidx.credentials.CredentialManager
+    import androidx.credentials.CustomCredential
+    import androidx.credentials.GetCredentialRequest
+    import androidx.credentials.GetCredentialResponse
     import androidx.lifecycle.ViewModel
     import androidx.lifecycle.ViewModelProvider
     import androidx.lifecycle.viewModelScope
@@ -18,6 +28,9 @@ package com.example.easypark_api_front
     import com.example.easypark_api_front.model.AuthResponse
     import com.example.easypark_api_front.model.Parking
     import com.example.easypark_api_front.model.User
+    import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+    import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+    import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
     import com.google.zxing.BarcodeFormat
     import com.google.zxing.MultiFormatWriter
     import com.google.zxing.common.BitMatrix
@@ -43,20 +56,21 @@ class viewModal(private val repository: Repository):ViewModel() {
 
 
     fun updateReservation() {
-        val reservation = Reservation().apply {
-            id = 1
-            date = "21/02/2024"
-            starthour = "14:00"
+        val reservation = Reservation(
+            id = 1,
+            parking_name = "parking lot",
+            parking_id = 123, // Remplacez par l'ID de votre parking
+            date = "21/02/2024",
+            parking_slot = "A1", // Remplacez par le slot de votre parking
+            parking_address = "123 Rue de l'Exemple, Ville", // Remplacez par l'adresse de votre parking
+            starthour = "14:00",
             duration = "3h"
-        }
+        )
+
 
         // Mettre à jour le code QR avec la réservation de test
         reservation_response.value=reservation
     }
-
-
-
-
 
     fun generateQRCode(text: String, width: Int, height: Int): ImageBitmap {
         val bitMatrix = MultiFormatWriter().encode(text, BarcodeFormat.QR_CODE, width, height)
@@ -76,7 +90,6 @@ class viewModal(private val repository: Repository):ViewModel() {
 
         return Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888).asImageBitmap()
     }
-
 
     fun getParkingById(id:Int){
         loading.value=true
@@ -144,7 +157,6 @@ class viewModal(private val repository: Repository):ViewModel() {
         }
     }
 
-
     fun getParkingByType(type:String){
         loading.value=true
         viewModelScope.launch {
@@ -163,8 +175,6 @@ class viewModal(private val repository: Repository):ViewModel() {
             }
         }
     }
-
-
 
     fun registerUser(fullName: String, phone: String, password: String, context: Context) {
         viewModelScope.launch {
@@ -242,8 +252,57 @@ class viewModal(private val repository: Repository):ViewModel() {
             }
     }
 
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    fun signInWithGoogle(context: Context) {
 
+        val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
+            .setFilterByAuthorizedAccounts(false) // Query all google accounts on the device
+            .setServerClientId("887801240888-arqdr0c18hd0am9gb4fsgg03ui8ulmuk.apps.googleusercontent.com")
+            .build()
 
+        val request = GetCredentialRequest.Builder()
+            .addCredentialOption(googleIdOption)
+            .build()
+
+        val credentialManager = CredentialManager.create(context)
+
+        viewModelScope.launch {
+            try {
+                val result = credentialManager.getCredential(context, request)
+                handleSignIn(result)
+            } catch (e: GetCredentialException) {
+                Log.e("MainActivity", "GetCredentialException", e)
+            }
+        }
+    }
+
+    private fun handleSignIn(result: GetCredentialResponse) {
+        // Handle the successfully returned credential.
+        when (val credential = result.credential) {
+            is CustomCredential -> {
+                if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                    try {
+                        // Use googleIdTokenCredential and extract id to validate and
+                        // authenticate on your server.
+                        val googleIdTokenCredential =
+                            GoogleIdTokenCredential.createFrom(credential.data)
+
+                        // TODO: Send [googleIdTokenCredential.idToken] to your backend
+                    } catch (e: GoogleIdTokenParsingException) {
+                        Log.e("MainActivity", "handleSignIn:", e)
+                    }
+                } else {
+                    // Catch any unrecognized custom credential type here.
+                    Log.e("MainActivity", "Unexpected type of credential")
+                }
+            }
+
+            else -> {
+                // Catch any unrecognized credential type here.
+                Log.e("MainActivity", "Unexpected type of credential")
+            }
+        }
+    }
 
     class Factory(private val repository: Repository): ViewModelProvider.Factory{
         override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {

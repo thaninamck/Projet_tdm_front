@@ -52,7 +52,7 @@ import com.example.easypark_api_front.screens.displayNotifications
 import com.example.easypark_api_front.screens.displaySignIn
 import com.example.easypark_api_front.screens.displaySignUp
 import com.example.easypark_api_front.screens.displayTicket
-import com.example.easypark_api_front.screens.myReservations
+//import com.example.easypark_api_front.screens.myReservations
 import com.example.easypark_api_front.screens.parkingDetails
 //import com.example.easypark_api_front.screens.parkingDetails
 import com.example.easypark_api_front.ui.theme.EasyparkapifrontTheme
@@ -145,6 +145,7 @@ class MainActivity : ComponentActivity() {
 }
 
 
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavigation(viewModal: viewModal) {
@@ -160,7 +161,9 @@ fun AppNavigation(viewModal: viewModal) {
         }
 
         composable(Routes.SignUp.route){
-            displaySignUp(navController,viewModal)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                displaySignUp(navController,viewModal)
+            }
         }
 
         composable(Routes.SignIn.route){
@@ -201,9 +204,9 @@ fun AppNavigation(viewModal: viewModal) {
         composable(Routes.parkingTicket.route){
             displayTicket(navController,viewModal)
         }
-        composable(Routes.pmyReservations.route){
-            myReservations(navController, viewModal)
-        }
+//        composable(Routes.pmyReservations.route){
+//            myReservations(navController, viewModal)
+//        }
 
         composable(Routes.notifications.route){
             displayNotifications(navController)
