@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.navigation.NavController
 import com.example.easypark_api_front.R
-import com.example.easypark_api_front.model.reservation
+import com.example.easypark_api_front.model.Reservation
 import com.example.easypark_api_front.viewModal
 
 @Composable
@@ -137,7 +137,7 @@ fun displayTicket(navController: NavController,viewModal: viewModal){
                         fontSize = 24.sp,
                     ),modifier=Modifier.padding(start = 20.dp, top = 9.dp, bottom = 2.dp)
                     )
-                    Text(text = reservation?.available_slots?:"",style = TextStyle(
+                    Text(text = reservation?.parking_slot?:"",style = TextStyle(
                         color = Color(0xFF192342),
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp,

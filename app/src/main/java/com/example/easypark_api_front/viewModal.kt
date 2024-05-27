@@ -166,13 +166,6 @@ class viewModal(private val repository: Repository):ViewModel() {
 
 
 
-
-
-
-
-
-
-
     fun registerUser(fullName: String, phone: String, password: String, context: Context) {
         viewModelScope.launch {
             val user = User(full_name = fullName, phone = phone, password = password)

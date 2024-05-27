@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -36,12 +37,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.easypark_api_front.R
 
-<<<<<<< HEAD
-import com.example.easypark_api_front.model.reservation
-=======
+
+import com.example.easypark_api_front.model.Reservation
+
 import com.example.easypark_api_front.Routes
 import com.example.easypark_api_front.viewModal
->>>>>>> 19dbba630e15edb23bdf02aff3974fe1f762e5ec
 
 @Composable
 fun myReservations(navController: NavController, viewModal: viewModal){
@@ -104,30 +104,7 @@ fun myReservations(navController: NavController, viewModal: viewModal){
             ),
             shape = RoundedCornerShape(15.dp),
         )
-<<<<<<< HEAD
-       var reservations= listOf<reservation>(
-           reservation().apply {
-           id = 0
-           date = "jndj"
-           starthour = ""
-           parkingName = "jndj"
-           available_slots = "45"
-           duration = ""
 
-
-       },
-               reservation().apply {
-           id = 0
-           date = "jndj"
-                   parkingName = "jndj"
-                   available_slots = "45"
-           starthour = ""
-           duration = ""
-
-
-       })
-=======
->>>>>>> 19dbba630e15edb23bdf02aff3974fe1f762e5ec
         LazyColumn {
             items(reservations ?: emptyList()) { reservation ->
                 Column(
