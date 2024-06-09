@@ -2,6 +2,7 @@ package com.example.easypark_api_front
 
 import com.example.easypark_api_front.Endpoint
 import com.example.easypark_api_front.model.AuthResponse
+import com.example.easypark_api_front.model.ReservationRequest
 import com.example.easypark_api_front.model.User
 import retrofit2.Response
 
@@ -16,6 +17,8 @@ class Repository(private val endpoint: Endpoint) {
         suspend  fun getParkingById(id:Int)=endpoint.getParkingById(id)
         suspend  fun getParkingByType(type:String)=endpoint.getParkingByType(type)
 
+        suspend fun createReservation(parkingId: Int, token: String, reservationRequest: ReservationRequest) =
+                endpoint.createReservation(parkingId, token, reservationRequest)
         suspend fun getMyReservations(token: String) = endpoint.getMyReservations(token)
 
 

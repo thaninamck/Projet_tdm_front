@@ -81,6 +81,13 @@ import androidx.compose.material3.rememberModalBottomSheetState
 @Composable
 fun displayGeoCard(navController: NavController,viewModal: viewModal) {
     val context = LocalContext.current
+    val pref = context.getSharedPreferences("fileName",Context.MODE_PRIVATE)
+    val fullname = pref.getString("fullname", "none")
+    val phone = pref.getString("phone", "none")
+//    val pref = context.getSharedPreferences("fileName",Context.MODE_PRIVATE)
+//    val editor = pref.edit()
+//    editor.remove("token")
+//    editor.apply()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var searchQuery by remember { mutableStateOf("") }
@@ -88,12 +95,19 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
         bottomSheetState = rememberModalBottomSheetState()
     )
 
-
-
     val success by viewModal.success
+    val logoutSuccess by viewModal.logoutSuccess
 
     LaunchedEffect(Unit) {
         viewModal.getAllParkings()
+    }
+
+    LaunchedEffect(logoutSuccess) {
+        if (logoutSuccess) {
+            navController.navigate(Routes.SignIn.route) {
+                popUpTo(0)
+            }
+        }
     }
 
     ModalNavigationDrawer(
@@ -120,12 +134,12 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
 
 
                         .padding(start=15.dp)){
-                        Text(text = "Ahmed Bouroubaz",style = TextStyle(
+                        Text(text = fullname?:"",style = TextStyle(
                             color = Color(0xFF192342),
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp))
 
-                        Text(text = "Ageria",style = TextStyle(
+                        Text(text = phone?:"",style = TextStyle(
                             color = Color(0xFF677191),
                             fontWeight = FontWeight.Medium,
                             fontSize = 13.sp))
@@ -182,7 +196,7 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                             ,painter = painterResource(id = R.drawable.logout),
                             contentDescription = null)
                         Button(onClick = {
-                           // viewModal.logoutUser(context)
+                           viewModal.logoutUser(context)
                         }) {
                             Text(text = "Logout",style = TextStyle(
                                 color = Color(0xFF192342),
@@ -617,34 +631,15 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                                              }
 
                                 )
-
                             }
-
-
                         }
-
-
-                    }//fin du box
-
-
-
-
-
-
+                    }
                 }
-
-
-
-
-
-
-
             }
         }
     )
-
-
 }
+
 
 @Composable
 fun Loader(loading:Boolean){

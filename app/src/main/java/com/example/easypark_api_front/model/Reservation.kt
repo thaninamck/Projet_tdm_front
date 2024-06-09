@@ -1,5 +1,6 @@
 package com.example.easypark.model
 
+
 class Reservation {
     var id: Int = 0
     var parking_name:String=""

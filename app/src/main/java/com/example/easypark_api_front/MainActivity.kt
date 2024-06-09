@@ -52,6 +52,7 @@ import com.example.easypark_api_front.screens.displayNotifications
 import com.example.easypark_api_front.screens.displaySignIn
 import com.example.easypark_api_front.screens.displaySignUp
 import com.example.easypark_api_front.screens.displayTicket
+import com.example.easypark_api_front.screens.myReservations
 //import com.example.easypark_api_front.screens.myReservations
 import com.example.easypark_api_front.screens.parkingDetails
 //import com.example.easypark_api_front.screens.parkingDetails
@@ -192,8 +193,11 @@ fun AppNavigation(viewModal: viewModal) {
             displayBooking1(navController,viewModal)
         }
 
-        composable(Routes.booking2.route){
-            displayBooking2(navController)
+        composable(Routes.booking2.route + "/{parkingId}"){ backStackEntry ->
+            val parkingId = backStackEntry.arguments?.getString("parkingId")?.toInt()
+            if (parkingId != null) {
+                displayBooking2(navController, parkingId, viewModal)
+            }
         }
         composable(Routes.booking4.route){
             displayBooking4(navController)
@@ -204,9 +208,9 @@ fun AppNavigation(viewModal: viewModal) {
         composable(Routes.parkingTicket.route){
             displayTicket(navController,viewModal)
         }
-//        composable(Routes.pmyReservations.route){
-//            myReservations(navController, viewModal)
-//        }
+        composable(Routes.pmyReservations.route){
+            myReservations(navController, viewModal)
+        }
 
         composable(Routes.notifications.route){
             displayNotifications(navController)

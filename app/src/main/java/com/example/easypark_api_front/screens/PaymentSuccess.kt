@@ -40,7 +40,7 @@ fun DisplayPaymentSucess(navController: NavController){
         )
 
         LaunchedEffect(Unit) {
-            delay(3000)  // Attend 3 secondes
+            delay(3000)  // Attend 3 seconds
             navController.navigate(Routes.parkingTicket.route)
         }
     }

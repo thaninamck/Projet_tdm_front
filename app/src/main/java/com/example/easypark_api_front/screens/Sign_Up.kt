@@ -336,8 +336,9 @@ fun displaySignUp(navController: NavController,viewModal: viewModal) {
                     fontSize = 15.sp,
 
                     ),
-
-                //modifier=Modifier.padding(23.dp) // Ajouter une marge autour du texte si nécessaire
+                modifier = Modifier.clickable {
+                    navController.navigate(Routes.SignIn.route)
+                }
             )
 
 

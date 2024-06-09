@@ -5,6 +5,7 @@ package com.example.easypark_api_front
 import com.example.easypark_api_front.model.Reservation
 import com.example.easypark_api_front.model.AuthResponse
 import com.example.easypark_api_front.model.Parking
+import com.example.easypark_api_front.model.ReservationRequest
 import com.example.easypark_api_front.model.User
 import com.example.easypark_api_front.ui.theme.URL
 import retrofit2.Response
@@ -59,5 +60,12 @@ interface Endpoint {
     suspend fun getMyReservations(
         @Header("Authorization") token:String
     ): Response<List<Reservation>>
+
+    @POST("api/parking/{id}/create-reservation")
+    suspend fun createReservation(
+        @Path("id") id: Int,
+        @Header("Authorization") token:String,
+        @Body reservationRequest: ReservationRequest
+    ) : Response<Reservation>
 
 }
