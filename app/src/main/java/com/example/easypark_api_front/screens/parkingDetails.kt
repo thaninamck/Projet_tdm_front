@@ -52,8 +52,6 @@ fun parkingDetails(parkingId:Int,navController: NavController,viewModal: viewMod
     LaunchedEffect(Unit) {
 
     viewModal.getParkingById(parkingId)
-
-
     }
 
     val parking = viewModal.parking_data.value
@@ -160,7 +158,7 @@ fun parkingDetails(parkingId:Int,navController: NavController,viewModal: viewMod
             horizontalArrangement = Arrangement.SpaceEvenly
 
         ){
-            text_Container(text = "34 slots")
+            text_Container(text = "Available slots: " + parking?.available_slots?.toString() ?: "")
             Spacer(modifier = Modifier.width(16.dp))
             text_Container(text = (parking?.price_per_hour).toString()+"  DZD/h")
 
@@ -186,7 +184,7 @@ fun parkingDetails(parkingId:Int,navController: NavController,viewModal: viewMod
                     containerColor = Color.Black,
                     disabledContainerColor = Color.Black
                 )
-                , onClick = { navController.navigate(Routes.booking1.route) }) {
+                , onClick = { navController.navigate(Routes.booking2.route +  "/${parkingId}") }) {
                 Text(
                     text = "Book Parking",
                     style = TextStyle(
