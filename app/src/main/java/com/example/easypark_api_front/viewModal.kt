@@ -45,7 +45,6 @@ package com.example.easypark_api_front
 class viewModal(private val repository: Repository):ViewModel() {
     val data= mutableStateOf(listOf<Parking>())
     val parking_data= mutableStateOf<Parking?>(null)
-    val created_reservation = mutableStateOf<Reservation?>(null)
     val reservation_data= mutableStateOf<List<Reservation>?>(null)
     val error= mutableStateOf(false)
     val loading= mutableStateOf(false)
@@ -55,7 +54,7 @@ class viewModal(private val repository: Repository):ViewModel() {
     val reservation_response= mutableStateOf<Reservation?>(null)
     val qrCode = mutableStateOf<ImageBitmap?>(null)
     fun updateQRCode(reservation: Reservation) {
-        val text = "${reservation.id},${reservation.date},${reservation.starthour},${reservation.duration}"
+        val text = "${reservation.id},${reservation.date},${reservation.starthour},${reservation.duration}, ${reservation.parking_slot}"
         qrCode.value = generateQRCode(text, 200, 200)
     }
 
@@ -265,7 +264,8 @@ class viewModal(private val repository: Repository):ViewModel() {
             if (response.isSuccessful) {
                 val data=response.body()
                 if (data!=null){
-                    created_reservation.value=data
+                    updateQRCode(data)
+                    reservation_response.value=data
                     saveReservationToCache(data, context)
                     success.value = true
                 }
