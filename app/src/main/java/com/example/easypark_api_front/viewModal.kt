@@ -1,7 +1,6 @@
 package com.example.easypark_api_front
 
 
-    import android.annotation.SuppressLint
     import android.graphics.Bitmap
     import android.graphics.Color.BLACK
     import android.graphics.Color.WHITE
@@ -14,8 +13,6 @@ package com.example.easypark_api_front
     import android.os.Build
     import android.util.Log
     import androidx.annotation.RequiresApi
-    import androidx.compose.runtime.Composable
-    import androidx.compose.ui.platform.LocalContext
     import androidx.credentials.CredentialManager
     import androidx.credentials.CustomCredential
     import androidx.credentials.GetCredentialRequest
@@ -24,7 +21,6 @@ package com.example.easypark_api_front
     import androidx.lifecycle.ViewModelProvider
     import androidx.lifecycle.viewModelScope
     import androidx.lifecycle.viewmodel.CreationExtras
-    import com.example.easypark_api_front.model.Reservation
     import com.example.easypark_api_front.model.AuthResponse
     import com.example.easypark_api_front.model.Parking
     import com.example.easypark_api_front.model.User
