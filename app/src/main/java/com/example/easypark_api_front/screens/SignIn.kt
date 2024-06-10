@@ -25,6 +25,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +54,17 @@ import com.example.easypark_api_front.viewModal
 @Composable
 fun displaySignIn(navController: NavController, viewModal: viewModal) {
     var context = LocalContext.current;
+
+    val loginSuccess by viewModal.loginSuccess
+
+    LaunchedEffect(loginSuccess) {
+        if (loginSuccess) {
+            viewModal.loginSuccess.value = false;
+            navController.navigate(Routes.GeoCardSCreen.route) {
+                popUpTo(0)
+            }
+        }
+    }
     Column(modifier = Modifier
         .fillMaxSize(),
 
@@ -134,8 +146,8 @@ fun displaySignIn(navController: NavController, viewModal: viewModal) {
                         .padding(top = 10.dp),
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text(text = "birthday") },
-                    placeholder = { Text(text = "Enter your birthday") },
+                    label = { Text(text = "Password") },
+                    placeholder = { Text(text = "Enter your password") },
 
 
                     //supportingText = { Text(text = "Please use the company email address.") },
@@ -235,9 +247,7 @@ fun displaySignIn(navController: NavController, viewModal: viewModal) {
                     .padding(top = 40.dp)
 
             )
-            Button(onClick = {
-                navController.navigate(Routes.SignUp.route)
-            }) {
+
                 Text(
 
                     text = "Create an account", style = TextStyle(
@@ -246,12 +256,11 @@ fun displaySignIn(navController: NavController, viewModal: viewModal) {
                         fontSize = 15.sp,
 
                         ),
-
+                    modifier = Modifier.clickable {
+                        navController.navigate(Routes.SignUp.route)
+                    }
                     //modifier=Modifier.padding(23.dp) // Ajouter une marge autour du texte si nécessaire
                 )
-            }
-
-
 
         }
     }

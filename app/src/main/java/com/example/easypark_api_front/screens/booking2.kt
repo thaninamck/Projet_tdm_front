@@ -54,49 +54,54 @@ import androidx.navigation.NavController
 import com.example.easypark_api_front.Routes
 import java.time.LocalDate
 import java.util.Calendar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import com.example.easypark_api_front.viewModal
+
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun displayBooking2(navController: NavController){
+fun displayBooking2(navController: NavController, parkingId: Int, viewModal: viewModal) {
+    var context = LocalContext.current;
+    LaunchedEffect(Unit) {
+        viewModal.getParkingById(parkingId)
+    }
 
+    val parking = viewModal.parking_data.value
 
+    var duration by remember { mutableStateOf(4) }
 
-
-
-    Column (modifier= Modifier
+    Column(modifier = Modifier
         .fillMaxSize()
         .background(Color.White),
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(top = 15.dp, start = 10.dp),
+            verticalArrangement = Arrangement.Top
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Retour",
+                modifier = Modifier.clickable {
+                    navController.popBackStack()
+                }
+            )
+        }
+        Text(text = "ORDER DETAILS", style = TextStyle(
+            color = Color(0xFF192342),
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp,
+        ), modifier = Modifier.padding(start = 40.dp, top = 10.dp, bottom = 15.dp)
+        )
 
+        DurationPicker(duration) { newDuration ->
+            duration = newDuration
+        }
 
-           ){
-           Column (
-               modifier= Modifier
-                   .padding(top=15.dp, start = 10.dp),
-               verticalArrangement = Arrangement.Top
-           ){
-               Icon(
-                   imageVector = Icons.Default.ArrowBack,
-                   contentDescription = "Retour",
-                   modifier= Modifier.clickable {
-                       navController.popBackStack()
-                   }
-               )
-
-           }
-           Text(text = "ORDER DETAILS",style = TextStyle(
-               color = Color(0xFF192342 ),
-               fontWeight = FontWeight.Bold,
-               fontSize = 16.sp,
-           ),modifier= Modifier.padding(start = 40.dp, top = 10.dp, bottom = 15.dp)
-           )
-
-
-        DurationPicker()
-
-
-        // Créer un état pour stocker la date sélectionnée
+        // Create a state to store the selected date
         val selectedDate = remember { mutableStateOf(LocalDate.now()) }
         val showDatePicker = remember { mutableStateOf(false) }
 
@@ -129,25 +134,19 @@ fun displayBooking2(navController: NavController){
             showDatePicker.value = false
         }
 
-
-
-
         val selectedTime = remember { mutableStateOf("") }
         val showTimePicker = remember { mutableStateOf(false) }
 
-           Text(
-               text = "START HOUR",
-               style = TextStyle(
-                   color = Color(0xFF192342),
-                   fontWeight = FontWeight.Bold,
-                   fontSize = 15.sp,
-               ),
-               modifier = Modifier
-                   .padding(start = 20.dp, top = 2.dp)
-
-           )
-
-
+        Text(
+            text = "START HOUR",
+            style = TextStyle(
+                color = Color(0xFF192342),
+                fontWeight = FontWeight.Bold,
+                fontSize = 15.sp,
+            ),
+            modifier = Modifier
+                .padding(start = 20.dp, top = 2.dp)
+        )
         Text(
             text = if (selectedTime.value.isEmpty()) "time" else selectedTime.value,
             style = TextStyle(
@@ -166,10 +165,8 @@ fun displayBooking2(navController: NavController){
             TimePickerdialog(selectedTime, showTimePicker)
         }
 
-
-
         Text(
-            text = "Vehicle",
+            text = "Vehicle type",
             style = TextStyle(
                 color = Color(0xFF192342),
                 fontWeight = FontWeight.Bold,
@@ -177,90 +174,87 @@ fun displayBooking2(navController: NavController){
             ),
             modifier = Modifier
                 .padding(start = 20.dp, top = 2.dp)
-
         )
-        var text by remember { mutableStateOf("Write your vehicle name please") }
 
-        TextField(
-            value = text,
-            onValueChange = { newText -> text = newText },
+        var expanded by remember { mutableStateOf(false) }
+        var vehicleType by remember { mutableStateOf("Select your vehicle type") }
+        val vehicleTypes = listOf("van", "car", "bus")
+
+        Column(
             modifier = Modifier
                 .padding(16.dp)
-                .clearAndSetSemantics { },
-            textStyle = TextStyle(
-                color = Color(0xFF677191),
-                fontSize = 13.sp
-            ),
-            colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = Color.Transparent,
-                disabledContainerColor = Color.Transparent,
-                cursorColor = Color.Black,
-                focusedContainerColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            ),
+                .background(Color(0xFFF3F6FF))
+                .clickable { expanded = true }
+        ) {
+            Text(
+                text = vehicleType,
+                style = TextStyle(
+                    color = Color(0xFF677191),
+                    fontSize = 13.sp
+                ),
+                modifier = Modifier.padding(16.dp)
+            )
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                vehicleTypes.forEach { type ->
+                    DropdownMenuItem(
+                        text = { Text(type) },
+                        onClick = {
+                            vehicleType = type
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
 
-        )
+        val total = parking?.price_per_hour?.times(duration) ?: 0f
 
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Bottom,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 35.dp)
+        ) {
 
+            textContainer(total.toString())
 
-
-
-
-
-
-
-
-
-
-
-           Column (
-               horizontalAlignment = Alignment.CenterHorizontally,
-               verticalArrangement = Arrangement.Bottom,
-               modifier = Modifier
-                   .fillMaxWidth()
-
-                   .padding(bottom = 35.dp)
-           ){
-
-               textContainer(text = "800")
-
-               Button(modifier = Modifier
-
-                   .padding(top =45.dp)
-                   .size(width = 332.dp, height = 56.dp)
-                   ,
-                   shape = RoundedCornerShape(32.dp),
-                   colors = ButtonDefaults.buttonColors(
-                       containerColor = Color.Black,
-                       disabledContainerColor = Color.Black
-                   )
-                   , onClick = { navController.navigate(Routes.booking4.route) }) {
-                   Text(
-                       text = "Continue",
-                       style = TextStyle(
-                           color = Color.White,
-                           fontWeight = FontWeight.SemiBold,
-                           fontSize = 15.sp
-
-                       )
-                   )
-               }
-           }
-
-
-
-       }
-   }
-
-
-
-
-
-
-
-
-
+            Button(
+                modifier = Modifier
+                    .padding(top = 45.dp)
+                    .size(width = 332.dp, height = 56.dp),
+                shape = RoundedCornerShape(32.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Black,
+                    disabledContainerColor = Color.Black
+                ),
+                onClick = {
+                    viewModal.createReservation(
+                        parkingId = parkingId,
+                        date = selectedDate.value.toString(),
+                        startTime = selectedTime.value,
+                        duration = duration,
+                        vehicleType = vehicleType,
+                        context = context
+                    )
+                }
+            ) {
+                Text(
+                    text = "Create reservation",
+                    style = TextStyle(
+                        color = Color.White,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 15.sp
+                    )
+                )
+            }
+        }
+    }
+    successCheckReservationCreation(success = viewModal.success.value, navController = navController)
+}
 
 //@OptIn(ExperimentalMaterial3Api::class)
 //@Composable
@@ -317,8 +311,7 @@ fun showDatePickerDialog(selectedDate: MutableState<LocalDate>) {
 }
 
 @Composable
-fun DurationPicker() {
-    var duration by remember { mutableStateOf(4) }
+fun DurationPicker(duration: Int, onDurationChange: (Int) -> Unit) {
     Text(
         text = "Durée sélectionnée : $duration heures",
         style = TextStyle(
@@ -330,18 +323,17 @@ fun DurationPicker() {
     )
     Slider(
         value = duration.toFloat(),
-        onValueChange = { newDuration -> duration = newDuration.toInt() },
+        onValueChange = { newDuration -> onDurationChange(newDuration.toInt()) },
         valueRange = 1f..24f,
-        //steps = 23,
         modifier = Modifier.padding(16.dp),
         colors = SliderDefaults.colors(
-            thumbColor = Color.Black,//la couleur de la tete
-            activeTrackColor = Color.Black,//la couleur de la partie selectionnée
+            thumbColor = Color.Black,
+            activeTrackColor = Color.Black,
             inactiveTrackColor = Color(0xFFF3F6FF)
-        )    )
-
-
+        )
+    )
 }
+
 
 @Composable
 fun textContainer(text: String) {
@@ -368,6 +360,14 @@ fun textContainer(text: String) {
                 text = text+  "  DZD", modifier = Modifier.padding(start = 8.dp), style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color.Black)
             )
 
+
+    }
+}
+
+fun successCheckReservationCreation(success:Boolean,navController: NavController){
+    if (success){
+        navController.navigate(Routes.paymentSuccess.route)
+    }else{
 
     }
 }

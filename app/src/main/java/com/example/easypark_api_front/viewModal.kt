@@ -21,8 +21,11 @@ package com.example.easypark_api_front
     import androidx.lifecycle.ViewModelProvider
     import androidx.lifecycle.viewModelScope
     import androidx.lifecycle.viewmodel.CreationExtras
+    import com.example.easypark_api_front.cache.AppDatabase
+    import com.example.easypark_api_front.model.Reservation
     import com.example.easypark_api_front.model.AuthResponse
     import com.example.easypark_api_front.model.Parking
+    import com.example.easypark_api_front.model.ReservationRequest
     import com.example.easypark_api_front.model.User
     import com.google.android.gms.maps.model.LatLng
     import com.google.android.libraries.identity.googleid.GetGoogleIdOption
@@ -44,12 +47,14 @@ class viewModal(private val repository: Repository):ViewModel() {
     val error= mutableStateOf(false)
     val loading= mutableStateOf(false)
     var success = mutableStateOf(false)
+    var logoutSuccess = mutableStateOf(false)
+    var loginSuccess = mutableStateOf(false)
     val reservation_response= mutableStateOf<Reservation?>(null)
     val qrCode = mutableStateOf<ImageBitmap?>(null)
     val selectedParkingForNavigation = mutableStateOf<LatLng?>(null)
 
     fun updateQRCode(reservation: Reservation) {
-        val text = "${reservation.id},${reservation.date},${reservation.starthour},${reservation.duration}"
+        val text = "${reservation.id},${reservation.date},${reservation.starthour},${reservation.duration}, ${reservation.parking_slot}"
         qrCode.value = generateQRCode(text, 200, 200)
     }
 
@@ -114,28 +119,34 @@ class viewModal(private val repository: Repository):ViewModel() {
         val pref = context.getSharedPreferences("fileName",Context.MODE_PRIVATE)
         val token = pref.getString("token", "none")
         if (token != null && token != "none") {
-            val bearerToken = "Bearer $token"
-
+//            val bearerToken = "Bearer $token"
+            loading.value=true
             viewModelScope.launch {
                 CoroutineScope(Dispatchers.IO).launch{
-                    val response=repository.getMyReservations(bearerToken)
+                    val database = AppDatabase.getDatabase(context)
+                    val cachedReservations = database.reservationDao().getAllReservations()
+                    reservation_data.value = cachedReservations.map { it.toDomain() }
+                    loading.value=false
 
-                    if(response.isSuccessful){
-                        val reservations= response.body()
-                        if (reservations!=null){
-                            reservation_data.value=reservations
-                        }
-                    }
-                    else{
-                        val errorBody = response.errorBody()?.string()
-                        Log.e("LOG OUT ERROR", "error: $errorBody")
-                        error.value=true
-                    }
+//                    val response=repository.getMyReservations(bearerToken)
+//                    if(response.isSuccessful){
+//                        val reservations= response.body()
+//                        if (reservations!=null){
+//                            reservation_data.value=reservations
+//                        }
+//                    }
+//                    else{
+//                        val errorBody = response.errorBody()?.string()
+//                        Log.e("LOG OUT ERROR", "error: $errorBody")
+//                        error.value=true
+//                    }
                 }
             }
         }
 
     }
+
+
 
     fun getAllParkings(){
         loading.value=true
@@ -224,9 +235,43 @@ class viewModal(private val repository: Repository):ViewModel() {
                         apply()
                     }
                 }
-                success.value=true
+                loginSuccess.value=true
             }else{
-                success.value=false
+                val errorBody = response.errorBody()?.string()
+                Log.e("LOG OUT ERROR", "error: $errorBody")
+                loginSuccess.value=false
+            }
+        }
+    }
+
+    fun createReservation(parkingId: Int, date: String, startTime: String, duration: Int, vehicleType: String, context: Context) {
+        val pref = context.getSharedPreferences("fileName", Context.MODE_PRIVATE)
+        val token = pref.getString("token", "none") ?: "none"
+        if (token == "none") {
+            // Handle missing token, e.g., show an error message
+            return
+        }
+        val bearerToken = "Bearer ${token}"
+        val reservationRequest = ReservationRequest(
+            date = date,
+            start_hour = startTime,
+            duration = duration,
+            supported_type = vehicleType
+        )
+
+        viewModelScope.launch {
+            val response = repository.createReservation(parkingId, bearerToken, reservationRequest)
+            if (response.isSuccessful) {
+                val data=response.body()
+                if (data!=null){
+                    updateQRCode(data)
+                    reservation_response.value=data
+                    saveReservationToCache(data, context)
+                    success.value = true
+                }
+            } else {
+                val errorBody = response.errorBody()?.string()
+                Log.e("CREATE RESERVATION ERROR", "error: $errorBody")
             }
         }
     }
@@ -242,7 +287,7 @@ class viewModal(private val repository: Repository):ViewModel() {
                         val editor = pref.edit()
                         editor.remove("token")
                         editor.apply()
-                        success.value = true
+                        logoutSuccess.value = true
                     }else {
                         val errorBody = response.errorBody()?.string()
                         Log.e("LOG OUT ERROR", "error: $errorBody")
@@ -313,7 +358,13 @@ class viewModal(private val repository: Repository):ViewModel() {
         }
     }
 
-
+    private fun saveReservationToCache(reservation: Reservation, context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val database = AppDatabase.getDatabase(context)
+            val reservationEntity = reservation.toEntity()
+            database.reservationDao().insert(reservationEntity)
+        }
+    }
 
     class Factory(private val repository: Repository): ViewModelProvider.Factory{
         override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
