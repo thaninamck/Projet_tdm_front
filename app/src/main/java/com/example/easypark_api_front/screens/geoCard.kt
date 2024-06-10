@@ -84,7 +84,6 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
     val pref = context.getSharedPreferences("fileName",Context.MODE_PRIVATE)
     val fullname = pref.getString("fullname", "none")
     val phone = pref.getString("phone", "none")
-//    val pref = context.getSharedPreferences("fileName",Context.MODE_PRIVATE)
 //    val editor = pref.edit()
 //    editor.remove("token")
 //    editor.apply()

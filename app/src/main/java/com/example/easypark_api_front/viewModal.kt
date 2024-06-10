@@ -27,12 +27,14 @@ package com.example.easypark_api_front
     import com.example.easypark_api_front.cache.AppDatabase
     import com.example.easypark_api_front.model.Reservation
     import com.example.easypark_api_front.model.AuthResponse
+    import com.example.easypark_api_front.model.FCMToken
     import com.example.easypark_api_front.model.Parking
     import com.example.easypark_api_front.model.ReservationRequest
     import com.example.easypark_api_front.model.User
     import com.google.android.libraries.identity.googleid.GetGoogleIdOption
     import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
     import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+    import com.google.firebase.messaging.FirebaseMessaging
     import com.google.zxing.BarcodeFormat
     import com.google.zxing.MultiFormatWriter
     import com.google.zxing.common.BitMatrix
@@ -207,12 +209,13 @@ class viewModal(private val repository: Repository):ViewModel() {
                         apply()
                     }
                 }
-                success.value=true
+                updateFcmToken(context)
             }else{
                 success.value=false
             }
         }
     }
+
 
     fun loginUser(fullName: String, password: String, context: Context) {
         viewModelScope.launch {
@@ -353,6 +356,35 @@ class viewModal(private val repository: Repository):ViewModel() {
             val database = AppDatabase.getDatabase(context)
             val reservationEntity = reservation.toEntity()
             database.reservationDao().insert(reservationEntity)
+        }
+    }
+
+    private fun updateFcmToken(context: Context) {
+        val pref = context.getSharedPreferences("fileName", Context.MODE_PRIVATE)
+        val token = pref.getString("token", "none") ?: "none"
+        if (token == "none") {
+            Log.e("FCM", "NO TOKEN")
+            return
+        }
+
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w("FCM", "Fetching FCM registration token failed", task.exception)
+                return@addOnCompleteListener
+            }
+
+            val fcmToken = task.result
+
+            val bearerToken = "Bearer $token"
+            viewModelScope.launch {
+                val response = repository.updateFcmToken(bearerToken, FCMToken(fcm_token = fcmToken))
+                if (response.isSuccessful) {
+                    success.value=true
+                    Log.d("FCM", "FCM token updated successfully")
+                } else {
+                    Log.e("FCM", "Failed to update FCM token: ${response.errorBody()?.string()}")
+                }
+            }
         }
     }
 

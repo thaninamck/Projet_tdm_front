@@ -4,7 +4,11 @@ data class User(
 
     var full_name: String,
     var phone: String,
-    var password: String
+    var password: String,
+    )
+
+data class FCMToken (
+    var fcm_token: String
 )
 
 

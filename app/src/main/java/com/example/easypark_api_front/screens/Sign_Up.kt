@@ -26,6 +26,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,6 +61,17 @@ import kotlinx.coroutines.launch
 @Composable
 fun displaySignUp(navController: NavController,viewModal: viewModal) {
     var context = LocalContext.current;
+
+    val success by viewModal.success
+
+    LaunchedEffect(success) {
+        if (success){
+            navController.navigate(Routes.GeoCardSCreen.route) {
+                popUpTo(0)
+            }
+        }
+
+    }
     Column(modifier = Modifier
         .fillMaxSize(),
 
@@ -345,13 +357,6 @@ fun displaySignUp(navController: NavController,viewModal: viewModal) {
         }
     }
 
-    successCheck(sucess = viewModal.success.value, navController = navController)
 
-}// end of composable function
-
-fun successCheck(sucess:Boolean,navController: NavController){
-    if (sucess){
-        navController.navigate(Routes.GeoCardSCreen.route)
-
-    }
 }
+

@@ -1,4 +1,4 @@
 package com.example.easypark_api_front.ui.theme
 
 
-const val URL ="https://8758-129-45-26-194.ngrok-free.app";
+const val URL ="https://e236-41-220-150-237.ngrok-free.app";

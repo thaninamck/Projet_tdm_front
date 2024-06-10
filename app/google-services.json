@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "333576195957",
+    "project_id": "tdm-fcm",
+    "storage_bucket": "tdm-fcm.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:333576195957:android:9b241b72e001088c2a8d3c",
+        "android_client_info": {
+          "package_name": "com.example.easypark_api_front"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXSY8064FKLWqWqOl_ALu3SBxzhnbecus"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

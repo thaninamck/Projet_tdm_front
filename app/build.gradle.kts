@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -122,9 +123,7 @@ dependencies {
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0-alpha04")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.0")
 
-
-
-
-
+    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
+    implementation("com.google.firebase:firebase-messaging")
 
 }

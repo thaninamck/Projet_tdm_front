@@ -4,6 +4,7 @@ package com.example.easypark_api_front
 
 import com.example.easypark_api_front.model.Reservation
 import com.example.easypark_api_front.model.AuthResponse
+import com.example.easypark_api_front.model.FCMToken
 import com.example.easypark_api_front.model.Parking
 import com.example.easypark_api_front.model.ReservationRequest
 import com.example.easypark_api_front.model.User
@@ -67,5 +68,12 @@ interface Endpoint {
         @Header("Authorization") token:String,
         @Body reservationRequest: ReservationRequest
     ) : Response<Reservation>
+
+    @POST("api/update-fcm-token")
+    suspend fun updateFcmToken(
+        @Header("Authorization") token: String,
+        @Body fcm_token: FCMToken
+    ): Response<Unit>
+
 
 }
