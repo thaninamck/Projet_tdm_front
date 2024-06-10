@@ -22,9 +22,9 @@ package com.example.easypark_api_front
     import androidx.lifecycle.viewModelScope
     import androidx.lifecycle.viewmodel.CreationExtras
     import com.example.easypark_api_front.cache.AppDatabase
-    import com.example.easypark_api_front.model.Reservation
     import com.example.easypark_api_front.model.AuthResponse
     import com.example.easypark_api_front.model.Parking
+    import com.example.easypark_api_front.model.Reservation
     import com.example.easypark_api_front.model.ReservationRequest
     import com.example.easypark_api_front.model.User
     import com.google.android.gms.maps.model.LatLng

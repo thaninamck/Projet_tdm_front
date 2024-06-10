@@ -2,9 +2,9 @@ package com.example.easypark_api_front
 
 
 
-import com.example.easypark_api_front.model.Reservation
 import com.example.easypark_api_front.model.AuthResponse
 import com.example.easypark_api_front.model.Parking
+import com.example.easypark_api_front.model.Reservation
 import com.example.easypark_api_front.model.ReservationRequest
 import com.example.easypark_api_front.model.User
 import com.example.easypark_api_front.ui.theme.URL
