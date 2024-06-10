@@ -28,6 +28,7 @@ package com.example.easypark_api_front
     import com.example.easypark_api_front.model.AuthResponse
     import com.example.easypark_api_front.model.Parking
     import com.example.easypark_api_front.model.User
+    import com.google.android.gms.maps.model.LatLng
     import com.google.android.libraries.identity.googleid.GetGoogleIdOption
     import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
     import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -49,6 +50,8 @@ class viewModal(private val repository: Repository):ViewModel() {
     var success = mutableStateOf(false)
     val reservation_response= mutableStateOf<Reservation?>(null)
     val qrCode = mutableStateOf<ImageBitmap?>(null)
+    val selectedParkingForNavigation = mutableStateOf<LatLng?>(null)
+
     fun updateQRCode(reservation: Reservation) {
         val text = "${reservation.id},${reservation.date},${reservation.starthour},${reservation.duration}"
         qrCode.value = generateQRCode(text, 200, 200)
@@ -92,12 +95,12 @@ class viewModal(private val repository: Repository):ViewModel() {
     }
 
     fun getParkingById(id:Int){
-        loading.value=true
+
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
 
             val response=repository.getParkingById(id)
-                loading.value=false
+
                 if(response.isSuccessful){
                     val data=response.body()
                     if (data!=null){
@@ -116,11 +119,11 @@ class viewModal(private val repository: Repository):ViewModel() {
         val token = pref.getString("token", "none")
         if (token != null && token != "none") {
             val bearerToken = "Bearer $token"
-            loading.value=true
+
             viewModelScope.launch {
                 CoroutineScope(Dispatchers.IO).launch{
                     val response=repository.getMyReservations(bearerToken)
-                    loading.value=false
+
                     if(response.isSuccessful){
                         val reservations= response.body()
                         if (reservations!=null){
@@ -158,11 +161,11 @@ class viewModal(private val repository: Repository):ViewModel() {
     }
 
     fun getParkingByType(type:String){
-        loading.value=true
+        //loading.value=true
         viewModelScope.launch {
             CoroutineScope(Dispatchers.IO).launch{
                 val response=repository.getParkingByType(type)
-                loading.value=false
+                //loading.value=false
                 if(response.isSuccessful){
                     val parkings=response.body()
                     if (parkings!=null){
@@ -287,7 +290,17 @@ class viewModal(private val repository: Repository):ViewModel() {
                         val googleIdTokenCredential =
                             GoogleIdTokenCredential.createFrom(credential.data)
 
-                        // TODO: Send [googleIdTokenCredential.idToken] to your backend
+
+
+                        val name = googleIdTokenCredential.givenName
+                        val nb = googleIdTokenCredential.phoneNumber
+                        if (name != null) {
+                            val name = googleIdTokenCredential.displayName
+                        }
+                        print(nb)
+                        print(name)
+
+                        // TODO: Send [name] to your backend
                     } catch (e: GoogleIdTokenParsingException) {
                         Log.e("MainActivity", "handleSignIn:", e)
                     }
@@ -304,9 +317,22 @@ class viewModal(private val repository: Repository):ViewModel() {
         }
     }
 
+
+
     class Factory(private val repository: Repository): ViewModelProvider.Factory{
         override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
             return viewModal(repository) as T
         }
     }
+
+
+
+
+
+
+
+
+
+
+
 }

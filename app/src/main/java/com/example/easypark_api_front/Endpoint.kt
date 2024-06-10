@@ -60,4 +60,11 @@ interface Endpoint {
         @Header("Authorization") token:String
     ): Response<List<Reservation>>
 
+
+    @POST("api/verifyUser")
+    suspend fun verifyUser(
+        @Body user: String
+    ): Response<AuthResponse>
+
+
 }

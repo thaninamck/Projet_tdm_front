@@ -42,11 +42,17 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
+
+
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/*"
         }
+
+
     }
+    
+
 }
 
 dependencies {
@@ -116,6 +122,7 @@ dependencies {
     implementation("androidx.credentials:credentials:1.3.0-alpha04")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0-alpha04")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.0")
+    implementation("com.google.api-client:google-api-client:2.3.0")
 
 
 

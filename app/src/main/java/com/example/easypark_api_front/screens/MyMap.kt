@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +24,7 @@ import androidx.navigation.NavController
 import com.example.easypark_api_front.R
 import com.example.easypark_api_front.Routes
 import com.example.easypark_api_front.ui.theme.LineType
+import com.example.easypark_api_front.viewModal
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -48,7 +50,8 @@ fun MyMap(
     latLng: LatLng,
     parkingLocations: List<Pair<LatLng, Int>>,
     mapProperties: MapProperties = MapProperties(),
-    navController: NavController
+    navController: NavController,
+    viewModal: viewModal
 ) {
     val latlangList = remember {
         mutableStateListOf(latLng)
@@ -58,6 +61,19 @@ fun MyMap(
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(latLng, 15f)
     }
+
+
+    // Dans le composant MyMap
+    LaunchedEffect(viewModal.selectedParkingForNavigation.value) {
+        if (viewModal.selectedParkingForNavigation.value != null) {
+            // Mettez à jour la position de la caméra pour pointer vers le parking sélectionné
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(viewModal.selectedParkingForNavigation.value!!, 15f)
+        }
+    }
+
+
+
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         GoogleMap(
