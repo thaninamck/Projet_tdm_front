@@ -130,7 +130,10 @@ dependencies {
     implementation("com.google.api-client:google-api-client:2.3.0")
 
 
+//onetap google auth
 
+        implementation("com.github.stevdza-san:OneTapCompose:1.0.12")
+    
 
 
 

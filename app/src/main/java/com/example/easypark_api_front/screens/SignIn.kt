@@ -3,12 +3,14 @@ package com.example.easypark_api_front.screens
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -20,6 +22,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
@@ -29,6 +32,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -44,9 +48,18 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
 import androidx.navigation.NavController
 import com.example.easypark_api_front.R
 import com.example.easypark_api_front.viewModal
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.stevdzasan.onetap.GoogleUser
+import com.stevdzasan.onetap.OneTapSignInState
+import com.stevdzasan.onetap.OneTapSignInWithGoogle
+import com.stevdzasan.onetap.getUserFromTokenId
+import com.stevdzasan.onetap.rememberOneTapSignInState
+import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -223,18 +236,42 @@ fun displaySignIn(navController: NavController, viewModal: viewModal) {
                     .padding(start = 5.dp, end = 5.dp),color = Color.Black, thickness = 0.5.dp)
 
             }
-            Image(
-                painter = painterResource(id = R.drawable.google_logo),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(30.dp)
-                    .padding(1.dp)
-                    .clickable {
-                        viewModal.signInWithGoogle(context)
 
-                    }
-                ,
+
+            val state = rememberOneTapSignInState()
+            var user: GoogleUser? by remember { mutableStateOf(null) }
+            OneTapSignInWithGoogle(
+                state = state,
+                clientId = "887801240888-arqdr0c18hd0am9gb4fsgg03ui8ulmuk.apps.googleusercontent.com",
+                rememberAccount = false,
+                onTokenIdReceived = {
+                    user = getUserFromTokenId(tokenId = it)
+                    Log.d("MainActivity", user.toString())
+                },
+                onDialogDismissed = {
+                    Log.d("MainActivity", it)
+                }
             )
+
+            Button(onClick = { state.open() }) {
+//
+                    Text(text = "Sign in")
+                }
+//            Image(
+//                painter = painterResource(id = R.drawable.google_logo),
+//                contentDescription = null,
+//                modifier = Modifier
+//                    .size(30.dp)
+//                    .padding(1.dp)
+//                    .clickable {
+//                OneTapSignInState.open()
+//
+//
+//
+//
+//                    }
+//                ,
+//            )
 
             Text(text = "Don't have an account ? ", style = TextStyle(
                 color = Color(0xFFC4C4C4),

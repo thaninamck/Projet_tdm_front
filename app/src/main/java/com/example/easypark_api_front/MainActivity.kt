@@ -153,7 +153,7 @@ fun AppNavigation(viewModal: viewModal) {
 
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = Routes.Splashscreen.route) {
+    NavHost(navController = navController, startDestination = Routes.SignIn.route) {
 
 
 

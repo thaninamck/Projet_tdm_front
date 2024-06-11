@@ -320,7 +320,7 @@ class viewModal(private val repository: Repository):ViewModel() {
         }
     }
 
-    private fun handleSignIn(result: GetCredentialResponse) {
+     fun handleSignIn(result: GetCredentialResponse) {
         // Handle the successfully returned credential.
         when (val credential = result.credential) {
             is CustomCredential -> {
@@ -341,7 +341,7 @@ class viewModal(private val repository: Repository):ViewModel() {
                         print(nb)
                         print(name)
 
-                        // TODO: Send [name] to your backend
+
                     } catch (e: GoogleIdTokenParsingException) {
                         Log.e("MainActivity", "handleSignIn:", e)
                     }
