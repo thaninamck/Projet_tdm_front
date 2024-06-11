@@ -24,15 +24,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Text
@@ -93,8 +95,25 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberModalBottomSheetState()
     )
+    var location by remember { mutableStateOf(LatLng(0.0, 0.0)) } // Initialisez avec une valeur par défaut
+    var loading by remember { mutableStateOf(false) }
+    var loadingMap by remember { mutableStateOf(false) }
 
-    val success by viewModal.success
+    val parkingLocations = viewModal.data.value.map { parking ->
+        val coordinates = parking.localization.split(",").map { it.toDouble() }
+        val latLng = LatLng(coordinates[0], coordinates[1])
+        val parkingId = parking.id
+        Pair(latLng, parkingId)
+    }
+
+    var parkingsearchQuery by remember { mutableStateOf("") }
+    val filteredParkings = viewModal.data.value.filter { parking ->
+        parking.nom.contains(parkingsearchQuery, ignoreCase = true) ||
+                parking.address.contains(parkingsearchQuery, ignoreCase = true)||
+                parking.description.contains(parkingsearchQuery, ignoreCase = true)
+        // ajoutez d'autres attributs si nécessaire
+    }
+
     val logoutSuccess by viewModal.logoutSuccess
 
     LaunchedEffect(Unit) {
@@ -103,6 +122,7 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
 
     LaunchedEffect(logoutSuccess) {
         if (logoutSuccess) {
+            viewModal.logoutSuccess.value = false
             navController.navigate(Routes.SignIn.route) {
                 popUpTo(0)
             }
@@ -167,11 +187,13 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                         )
 
 
-                Text(text = "History",style = TextStyle(
+                Text(text = "Clear my reservations",style = TextStyle(
                     color = Color(0xFF192342),
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp),
-                    modifier= Modifier.padding(start=10.dp,bottom=90.dp,top=20.dp)
+                    modifier= Modifier.padding(start=10.dp,bottom=90.dp,top=20.dp).clickable {
+                        viewModal.clearReservations(context)
+                    }
                        )
 
                 Column (
@@ -190,20 +212,19 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                             .shadow(elevation = 4.dp)
                             .size(20.dp)
                             .clickable {
-                                       navController.navigate(Routes.paymentSuccess.route)
+                                navController.navigate(Routes.paymentSuccess.route)
                             }
                             ,painter = painterResource(id = R.drawable.logout),
                             contentDescription = null)
-                        Button(onClick = {
-                           viewModal.logoutUser(context)
-                        }) {
                             Text(text = "Logout",style = TextStyle(
                                 color = Color(0xFF192342),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 15.sp),
-                                modifier= Modifier.padding(start=10.dp)
+                                modifier= Modifier.padding(start=10.dp).clickable {
+                                    viewModal.logoutUser(context)
+                                }
                             )
-                        }
+
 
                     }
                 }
@@ -292,6 +313,8 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                                 Text(text = "Error while fetching parkings")
                             }
                         } else {
+                            loading=viewModal.loading.value
+
                             LazyColumn {
 
                                 items(viewModal.data.value.filter {
@@ -312,6 +335,7 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                                             .padding(top = 20.dp, start = 5.dp)
 
                                     ) {
+                                        // Loader(loading)
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
                                             horizontalArrangement = Arrangement.SpaceBetween
@@ -381,8 +405,7 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                 ) {
 
                     Column(modifier = Modifier
-                        .clip(RoundedCornerShape(15.dp))
-                        .background(Color.Yellow)
+
                         ,
 
                         ){
@@ -391,7 +414,7 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 50.dp)
-                                .background(Color.Yellow),
+                                ,
                         ) {
                             Image(modifier= Modifier
                                 .padding(end = 90.dp)
@@ -399,14 +422,15 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                                 .clickable {
                                     scope.launch { drawerState.open() }
                                 }
-                                ,painter = painterResource(id = R.drawable.menu_icon), contentDescription = null)
+                                ,painter = painterResource(id = R.drawable.menu), contentDescription = null)
 
                             Image(modifier= Modifier
                                 .clip(CircleShape)
 
-                                .padding(start = 90.dp)
+                                .padding(start = 80.dp)
                                 .shadow(elevation = 4.dp)
-                                .size(35.dp),painter = painterResource(id = R.drawable.avatar),
+                                .size(40.dp),
+                                painter = painterResource(id = R.drawable.avatar),
                                 contentDescription = null)
 
 
@@ -414,10 +438,21 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
 
                         }
 
-                        TextField(
-                            value = "",
 
-                            onValueChange = {},
+
+
+
+
+
+
+
+
+
+
+                        //textfield de la carte
+                        TextField(
+                            value = parkingsearchQuery ,
+                            onValueChange = { parkingsearchQuery  = it },
                             placeholder = {
                                 Text(buildAnnotatedString {
                                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, color = Color.Gray, fontSize = 14.sp)) {
@@ -426,9 +461,9 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                                 })
                             },
                             modifier= Modifier
-                                .padding(start = 25.dp)
+                                .padding(start = 30.dp)
                                 .width(336.dp)
-                                .padding(top = 20.dp,bottom=10.dp)
+                                .padding(top = 20.dp, bottom = 8.dp)
                                 .shadow(elevation = 8.dp),
                             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                             colors = TextFieldDefaults.colors(
@@ -448,12 +483,13 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
 
 
 
+
+
                     Box(modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start=2.dp,end=10.dp,bottom=10.
-                        dp)) {
-
-
+                        .padding(
+                            start = 2.dp, end = 2.dp, bottom = 10.dp
+                        )) {
 
 
 
@@ -466,7 +502,6 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                         }
 
                         val scope = rememberCoroutineScope()
-                        var location by remember { mutableStateOf(LatLng(0.0, 0.0)) } // Initialisez avec une valeur par défaut
                         var showMap by remember { mutableStateOf(false) }
 
                         // Vérifiez si la permission a été accordée
@@ -491,28 +526,29 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                             else -> {}
                         }
 
-                        val parkingLocations = viewModal.data.value.map { parking ->
-                            val coordinates = parking.localization.split(",").map { it.toDouble() }
-                            val latLng = LatLng(coordinates[0], coordinates[1])
-                            val parkingId = parking.id
-                            Pair(latLng, parkingId)
-                        }
+
 
                         if (showMap) {
+                        loadingMap=false
                             MyMap(
                                 context = context,
                                 latLng = location,
                                parkingLocations =parkingLocations,
-                                navController = navController
+                                navController = navController,
+                                viewModal = viewModal
                                 )
                         } else {
+                            loadingMap=true
+
                             Column (
                                 modifier=Modifier.fillMaxSize(),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
 
                             ){
-                                Text(text = "Loading Map...")
+                                Text(text = "Loading Map....")
+                               //ProgressIndicator()
+                                //Loader(loadingMap)
                             }
 
                         }
@@ -523,13 +559,14 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
 
                         Row(
                             horizontalArrangement = Arrangement.SpaceEvenly,
-                            modifier = Modifier.fillMaxWidth().padding(top=5.dp)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 5.dp)
                         ) {
 
                             Column (
                                 modifier= Modifier
-                                    .size(55.dp)
-                                    .background(Color.White)
+                                    .size(60.dp)
                                     .shadow(
                                         elevation = 10.dp,
                                         shape = RoundedCornerShape(10.dp),
@@ -537,37 +574,42 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                                         // Ici, l'opacité est réglée sur 50%
                                         ambientColor = Color(0f, 0f, 0f, 0.5f)
                                     )
-                                    .clip(RoundedCornerShape(15.dp)),
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(Color.White)
+
+                                    ,
 
                             ){
                                 Image(painter =if(carSelected){painterResource(id = R.drawable.car_selected)}else painterResource(id = R.drawable.car_not_selected), contentDescription = "car",
                                     modifier = Modifier
                                         .background(Color.White)
 
-                                        .size(50.dp).padding(4.dp).clickable {
-                                            if (!carSelected){
-                                                carSelected=true
-                                                motoSelected=false
-                                                busSelected=false
+                                        .size(50.dp)
+                                        .padding(4.dp)
+                                        .clickable {
+                                            if (!carSelected) {
+                                                carSelected = true
+                                                motoSelected = false
+                                                busSelected = false
                                                 viewModal.getParkingByType("car")
                                                 scope.launch {
                                                     scaffoldState.bottomSheetState.expand()
-                                                    carSelected=false
+                                                    carSelected = false
                                                 }
-
-
 
 
                                             }
                                         }
                                 )
+
+
+
                             }
 
 
                             Column(
                             modifier= Modifier
-                                .size(55.dp)
-                                .background(Color.White)
+                                .size(60.dp)
                                 .shadow(
                                     elevation = 10.dp,
                                     shape = RoundedCornerShape(10.dp),
@@ -575,30 +617,35 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                                     // Ici, l'opacité est réglée sur 50%
                                     ambientColor = Color(0f, 0f, 0f, 0.5f)
                                 )
-                                .clip(RoundedCornerShape(15.dp)),
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(Color.White)
+                                ,
 
                             ){
                             Image(painter =if(busSelected){painterResource(id = R.drawable.bus_selected)}else
                             painterResource(id = R.drawable.bus), contentDescription = null,modifier = Modifier
                                 .background(Color.White)
-                                .size(50.dp).padding(4.dp).clickable { if (!busSelected){
-                                                                busSelected=true
-                                                                carSelected=false
-                                                                motoSelected=false
-                                    viewModal.getParkingByType("bus")
-                                    scope.launch {
-                                        scaffoldState.bottomSheetState.expand()
-                                        busSelected=false
-                                    }
+                                .size(50.dp)
+                                .padding(4.dp)
+                                .clickable {
+                                    if (!busSelected) {
+                                        busSelected = true
+                                        carSelected = false
+                                        motoSelected = false
+                                        viewModal.getParkingByType("bus")
+                                        scope.launch {
+                                            scaffoldState.bottomSheetState.expand()
+                                            busSelected = false
+                                        }
 
-                                } }
+                                    }
+                                }
 
                             )}
 
                             Column(
                                 modifier= Modifier
-                                    .size(55.dp)
-                                    .background(Color.White)
+                                    .size(60.dp)
                                     .shadow(
                                         elevation = 10.dp,
                                         shape = RoundedCornerShape(10.dp),
@@ -606,7 +653,8 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                                         // Ici, l'opacité est réglée sur 50%
                                         ambientColor = Color(0f, 0f, 0f, 0.5f)
                                     )
-                                    .clip(RoundedCornerShape(15.dp)),
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(Color.White),
 
                                 ) {
                                 Image(
@@ -614,27 +662,73 @@ fun displayGeoCard(navController: NavController,viewModal: viewModal) {
                                     contentDescription = null,
                                     modifier = Modifier
                                         .background(Color.White)
-                                        .size(50.dp).clickable {
-                                            if (!motoSelected){
-                                                motoSelected=true
-                                                carSelected=false
-                                                busSelected=false
+                                        .size(50.dp)
+                                        .padding(4.dp)
+                                        .clickable {
+                                            if (!motoSelected) {
+                                                motoSelected = true
+                                                carSelected = false
+                                                busSelected = false
                                                 viewModal.getParkingByType("bike")
                                                 scope.launch {
                                                     scaffoldState.bottomSheetState.expand()
-                                                    motoSelected=false
+                                                    motoSelected = false
                                                 }
 
                                             }
 
-                                             }
+                                        }
 
                                 )
                             }
                         }
+
+                        if (parkingsearchQuery.isNotEmpty()) {
+                            // Affichez une liste des parkings filtrés
+                            LazyColumn(
+                                modifier = Modifier
+                                    .background(Color.White)
+                                    .padding(top = 8.dp, start = 10.dp, end = 10.dp)
+                            ) {
+                                items(filteredParkings) { parking ->
+                                    // Rendez chaque Text cliquable
+                                    Text(
+                                        text = parking.nom,
+                                        modifier = Modifier
+                                            .clickable {
+                                                // Trouvez les coordonnées du parking sélectionné
+                                                val selectedParkingLocation =
+                                                    parkingLocations.find { it.second == parking.id }
+                                                if (selectedParkingLocation != null) {
+                                                    viewModal.selectedParkingForNavigation.value =
+                                                        parkingLocations.find { it.second == parking.id }?.first
+                                                }
+                                            }
+                                            .padding(16.dp)
+                                            .fillMaxWidth()
+                                            .background(Color.White),
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                    Divider(color = Color.LightGray)
+                                }
+                            }
+                        } else {
+                            viewModal.selectedParkingForNavigation.value = location
+                        }
+
+
+
+
+                    }//fin du box
+
+
+
+
+
+
                     }
                 }
-            }
+
         }
     )
 }

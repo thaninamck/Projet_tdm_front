@@ -199,8 +199,11 @@ fun AppNavigation(viewModal: viewModal) {
                 displayBooking2(navController, parkingId, viewModal)
             }
         }
-        composable(Routes.booking4.route){
-            displayBooking4(navController)
+        composable(Routes.booking4.route+ "/{parkingId}"){ backStackEntry ->
+            val parkingId = backStackEntry.arguments?.getString("parkingId")?.toInt()
+            if (parkingId != null) {
+                displayBooking4(navController, parkingId)
+            }
         }
         composable(Routes.paymentSuccess.route){
             DisplayPaymentSucess(navController)

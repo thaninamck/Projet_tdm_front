@@ -42,15 +42,9 @@ import com.example.easypark_api_front.viewModal
 @Composable
 fun displayTicket(navController: NavController,viewModal: viewModal){
 
-    LaunchedEffect(Unit) {
-
-       viewModal.updateReservation()
-
-    }
     var reservation=viewModal.reservation_response.value
     if (reservation != null) {
         viewModal.updateQRCode(reservation)
-
     }
     var qr_code=viewModal.qrCode.value
     Column(
@@ -86,13 +80,13 @@ fun displayTicket(navController: NavController,viewModal: viewModal){
                 ,
 
         ){
-            Text(text = "VEHICLE",style = TextStyle(
+            Text(text = "Parking",style = TextStyle(
                 color = Color(0xFF192342),
                 fontWeight = FontWeight.Medium,
                 fontSize = 18.sp,
             ),modifier=Modifier.padding(start = 20.dp, top = 15.dp, bottom = 2.dp)
             )
-            Text(text = "Logan",style = TextStyle(
+            Text(text = reservation?.parking_name?:"" + " | " + reservation?.parking_address,style = TextStyle(
                 color = Color(0xFF677191),
                 fontWeight = FontWeight.Medium,
                 fontSize = 18.sp,
@@ -100,19 +94,13 @@ fun displayTicket(navController: NavController,viewModal: viewModal){
             )
 
 
-            Text(text = "DURATION",style = TextStyle(
+            Text(text = "Date",style = TextStyle(
                 color = Color(0xFF192342),
                 fontWeight = FontWeight.Medium,
                 fontSize = 18.sp,
             ),modifier=Modifier.padding(start = 20.dp, top = 43.dp, bottom = 2.dp)
             )
             Row() {
-                Text(text =reservation?.duration?:"",style = TextStyle(
-                    color = Color(0xFF677191),
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 18.sp,
-                ),modifier=Modifier.padding(start = 20.dp, bottom = 2.dp)
-                )
                 Text(text = reservation?.date?:"",style = TextStyle(
                     color = Color(0xFF677191),
                     fontWeight = FontWeight.Medium,

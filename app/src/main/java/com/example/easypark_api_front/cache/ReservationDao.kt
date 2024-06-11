@@ -12,4 +12,7 @@ interface ReservationDao {
 
     @Query("SELECT * FROM reservations")
     suspend fun getAllReservations(): List<ReservationEntity>
+
+    @Query("DELETE FROM reservations")
+    suspend fun clearAllReservations()
 }

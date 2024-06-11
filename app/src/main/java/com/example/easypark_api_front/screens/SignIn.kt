@@ -3,6 +3,7 @@ package com.example.easypark_api_front.screens
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -44,9 +45,16 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialException
 import androidx.navigation.NavController
 import com.example.easypark_api_front.R
 import com.example.easypark_api_front.viewModal
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -230,8 +238,27 @@ fun displaySignIn(navController: NavController, viewModal: viewModal) {
                     .size(30.dp)
                     .padding(1.dp)
                     .clickable {
-                        viewModal.signInWithGoogle(context)
+                        val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
+                            .setFilterByAuthorizedAccounts(false)
+                            .setServerClientId("761708191109-olp1fh06plg4s3ivftdjdkqds17t41ql.apps.googleusercontent.com")
+                            .build()
 
+                        val request =
+                            GetCredentialRequest.Builder().addCredentialOption(googleIdOption)
+                                .build()
+
+                        val credentialManager = CredentialManager.create(context)
+
+                        CoroutineScope(Dispatchers.IO).launch {
+                            try {
+                                val result =
+                                    credentialManager.getCredential(context, request)
+                                viewModal.handleSignIn(result)
+
+                            } catch (e: GetCredentialException) {
+                                Log.e("MainActivity", "GetCredentialException", e)
+                            }
+                        }
                     }
                 ,
             )

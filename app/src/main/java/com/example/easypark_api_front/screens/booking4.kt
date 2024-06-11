@@ -48,7 +48,7 @@ import com.example.easypark_api_front.Routes
 import com.example.easypark_api_front.R
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun displayBooking4(navController: NavController){
+fun displayBooking4(navController: NavController, parkingId: Int){
     Column (modifier= Modifier
         .fillMaxSize()
         .background(Color.White),
@@ -167,36 +167,6 @@ fun displayBooking4(navController: NavController){
                     .height(211.dp)
                     .clip(RoundedCornerShape(15.dp)),
                 contentScale = ContentScale.FillBounds)
-
-
-            Row(
-                modifier = Modifier
-                    .background(Color(0xFFF3F6FF))
-
-                    .height(50.dp)
-                    .width(335.dp) ,
-                verticalAlignment = Alignment.CenterVertically
-
-            ) {
-                Divider(modifier= Modifier
-                    .height(50.dp)
-                    .width(8.dp)
-                    ,color = Color.Black, thickness = 2.dp)
-                Text(
-                    text = "TOTAL", modifier = Modifier.padding(start = 8.dp), style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color.Black)
-                )
-                Column (
-                    modifier=Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.End){
-                    Text(
-                        text = "800 DZD", modifier = Modifier.padding(start = 8.dp), style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color.Black)
-                    )
-                }
-            }
-
-
-
-
         }
 
 
@@ -219,9 +189,9 @@ fun displayBooking4(navController: NavController){
                     containerColor = Color.Black,
                     disabledContainerColor = Color.Black
                 )
-                , onClick = { navController.navigate(Routes.paymentSuccess.route) }) {
+                , onClick = { navController.navigate(Routes.booking2.route +  "/${parkingId}") }) {
                 Text(
-                    text = "Confirm & Pay",
+                    text = "Next",
                     style = TextStyle(
                         color = Color.White,
                         fontWeight = FontWeight.SemiBold,

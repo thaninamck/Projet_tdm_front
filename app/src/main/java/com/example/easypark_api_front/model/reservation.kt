@@ -1,6 +1,5 @@
 package com.example.easypark_api_front.model
 
-import com.example.easypark.model.Reservation
 import com.example.easypark_api_front.cache.ReservationEntity
 
 data class Reservation (

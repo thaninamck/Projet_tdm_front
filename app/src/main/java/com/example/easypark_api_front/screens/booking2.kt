@@ -69,9 +69,20 @@ fun displayBooking2(navController: NavController, parkingId: Int, viewModal: vie
         viewModal.getParkingById(parkingId)
     }
 
+    val success by viewModal.success
+
+    LaunchedEffect(success) {
+        if (success) {
+            viewModal.success.value = false;
+            navController.navigate(Routes.paymentSuccess.route) {
+                popUpTo(0)
+            }
+        }
+    }
+
     val parking = viewModal.parking_data.value
 
-    var duration by remember { mutableStateOf(4) }
+    var duration by remember { mutableStateOf(1) }
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -178,7 +189,7 @@ fun displayBooking2(navController: NavController, parkingId: Int, viewModal: vie
 
         var expanded by remember { mutableStateOf(false) }
         var vehicleType by remember { mutableStateOf("Select your vehicle type") }
-        val vehicleTypes = listOf("van", "car", "bus")
+        val vehicleTypes = listOf("bike", "car", "bus")
 
         Column(
             modifier = Modifier
@@ -253,7 +264,6 @@ fun displayBooking2(navController: NavController, parkingId: Int, viewModal: vie
             }
         }
     }
-    successCheckReservationCreation(success = viewModal.success.value, navController = navController)
 }
 
 //@OptIn(ExperimentalMaterial3Api::class)
@@ -360,14 +370,6 @@ fun textContainer(text: String) {
                 text = text+  "  DZD", modifier = Modifier.padding(start = 8.dp), style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color.Black)
             )
 
-
-    }
-}
-
-fun successCheckReservationCreation(success:Boolean,navController: NavController){
-    if (success){
-        navController.navigate(Routes.paymentSuccess.route)
-    }else{
 
     }
 }

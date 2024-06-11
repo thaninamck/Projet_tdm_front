@@ -184,7 +184,7 @@ fun parkingDetails(parkingId:Int,navController: NavController,viewModal: viewMod
                     containerColor = Color.Black,
                     disabledContainerColor = Color.Black
                 )
-                , onClick = { navController.navigate(Routes.booking2.route +  "/${parkingId}") }) {
+                , onClick = { navController.navigate(Routes.booking4.route +  "/${parkingId}") }) {
                 Text(
                     text = "Book Parking",
                     style = TextStyle(

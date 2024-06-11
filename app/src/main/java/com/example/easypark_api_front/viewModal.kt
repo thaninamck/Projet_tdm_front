@@ -1,7 +1,6 @@
 package com.example.easypark_api_front
 
 
-    import android.annotation.SuppressLint
     import android.graphics.Bitmap
     import android.graphics.Color.BLACK
     import android.graphics.Color.WHITE
@@ -14,8 +13,7 @@ package com.example.easypark_api_front
     import android.os.Build
     import android.util.Log
     import androidx.annotation.RequiresApi
-    import androidx.compose.runtime.Composable
-    import androidx.compose.ui.platform.LocalContext
+    import androidx.credentials.Credential
     import androidx.credentials.CredentialManager
     import androidx.credentials.CustomCredential
     import androidx.credentials.GetCredentialRequest
@@ -24,13 +22,15 @@ package com.example.easypark_api_front
     import androidx.lifecycle.ViewModelProvider
     import androidx.lifecycle.viewModelScope
     import androidx.lifecycle.viewmodel.CreationExtras
+    import com.auth0.android.jwt.JWT
     import com.example.easypark_api_front.cache.AppDatabase
-    import com.example.easypark_api_front.model.Reservation
     import com.example.easypark_api_front.model.AuthResponse
     import com.example.easypark_api_front.model.FCMToken
     import com.example.easypark_api_front.model.Parking
+    import com.example.easypark_api_front.model.Reservation
     import com.example.easypark_api_front.model.ReservationRequest
     import com.example.easypark_api_front.model.User
+    import com.google.android.gms.maps.model.LatLng
     import com.google.android.libraries.identity.googleid.GetGoogleIdOption
     import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
     import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -51,31 +51,16 @@ class viewModal(private val repository: Repository):ViewModel() {
     val error= mutableStateOf(false)
     val loading= mutableStateOf(false)
     var success = mutableStateOf(false)
+    var registerSuccess = mutableStateOf(false)
     var logoutSuccess = mutableStateOf(false)
     var loginSuccess = mutableStateOf(false)
     val reservation_response= mutableStateOf<Reservation?>(null)
     val qrCode = mutableStateOf<ImageBitmap?>(null)
+    val selectedParkingForNavigation = mutableStateOf<LatLng?>(null)
+
     fun updateQRCode(reservation: Reservation) {
         val text = "${reservation.id},${reservation.date},${reservation.starthour},${reservation.duration}, ${reservation.parking_slot}"
         qrCode.value = generateQRCode(text, 200, 200)
-    }
-
-
-    fun updateReservation() {
-        val reservation = Reservation(
-            id = 1,
-            parking_name = "parking lot",
-            parking_id = 123, // Remplacez par l'ID de votre parking
-            date = "21/02/2024",
-            parking_slot = "A1", // Remplacez par le slot de votre parking
-            parking_address = "123 Rue de l'Exemple, Ville", // Remplacez par l'adresse de votre parking
-            starthour = "14:00",
-            duration = "3h"
-        )
-
-
-        // Mettre à jour le code QR avec la réservation de test
-        reservation_response.value=reservation
     }
 
     fun generateQRCode(text: String, width: Int, height: Int): ImageBitmap {
@@ -98,12 +83,12 @@ class viewModal(private val repository: Repository):ViewModel() {
     }
 
     fun getParkingById(id:Int){
-        loading.value=true
+
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
 
             val response=repository.getParkingById(id)
-                loading.value=false
+
                 if(response.isSuccessful){
                     val data=response.body()
                     if (data!=null){
@@ -170,11 +155,11 @@ class viewModal(private val repository: Repository):ViewModel() {
     }
 
     fun getParkingByType(type:String){
-        loading.value=true
+        //loading.value=true
         viewModelScope.launch {
             CoroutineScope(Dispatchers.IO).launch{
                 val response=repository.getParkingByType(type)
-                loading.value=false
+                //loading.value=false
                 if(response.isSuccessful){
                     val parkings=response.body()
                     if (parkings!=null){
@@ -211,7 +196,7 @@ class viewModal(private val repository: Repository):ViewModel() {
                 }
                 updateFcmToken(context)
             }else{
-                success.value=false
+                registerSuccess.value=false
             }
         }
     }
@@ -251,7 +236,6 @@ class viewModal(private val repository: Repository):ViewModel() {
         val pref = context.getSharedPreferences("fileName", Context.MODE_PRIVATE)
         val token = pref.getString("token", "none") ?: "none"
         if (token == "none") {
-            // Handle missing token, e.g., show an error message
             return
         }
         val bearerToken = "Bearer ${token}"
@@ -299,42 +283,34 @@ class viewModal(private val repository: Repository):ViewModel() {
             }
     }
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    fun signInWithGoogle(context: Context) {
-
-        val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
-            .setFilterByAuthorizedAccounts(false) // Query all google accounts on the device
-            .setServerClientId("887801240888-arqdr0c18hd0am9gb4fsgg03ui8ulmuk.apps.googleusercontent.com")
-            .build()
-
-        val request = GetCredentialRequest.Builder()
-            .addCredentialOption(googleIdOption)
-            .build()
-
-        val credentialManager = CredentialManager.create(context)
-
-        viewModelScope.launch {
-            try {
-                val result = credentialManager.getCredential(context, request)
-                handleSignIn(result)
-            } catch (e: GetCredentialException) {
-                Log.e("MainActivity", "GetCredentialException", e)
-            }
-        }
-    }
-
-    private fun handleSignIn(result: GetCredentialResponse) {
-        // Handle the successfully returned credential.
+    @RequiresApi(34)
+    suspend fun handleSignIn(result: androidx.credentials.GetCredentialResponse) {
         when (val credential = result.credential) {
-            is CustomCredential -> {
+            is Credential -> {
                 if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                     try {
-                        // Use googleIdTokenCredential and extract id to validate and
-                        // authenticate on your server.
                         val googleIdTokenCredential =
                             GoogleIdTokenCredential.createFrom(credential.data)
+                        val userInfo = decodeJwtToken(googleIdTokenCredential)
+                        Log.d("USER NAME", userInfo.full_name)
+                        // Use userInfo as needed
+                        Log.d("MainActivity", "User Info: $userInfo")
+//                        val response: Response<AuthResponse> = repository.googleAuth()
+//                        repository.googleAuth(userInfo).let { response ->
+//                            when(response){
+//                                is Resource.Success -> {
+//                                    _signInState.send(SignInState(isSuccess = true))
+//                                }
+//                                is Resource.Error -> {
+//                                    _signInState.send(SignInState(isError = response.message ?: "An error occurred"))
+//                                }
+//
+//                                is Resource.Loading -> TODO()
+//                            }
+//
+//                        }
 
-                        // TODO: Send [googleIdTokenCredential.idToken] to your backend
+                        // TODO: Send [googleIdTokenCredential.idToken] to your
                     } catch (e: GoogleIdTokenParsingException) {
                         Log.e("MainActivity", "handleSignIn:", e)
                     }
@@ -350,12 +326,45 @@ class viewModal(private val repository: Repository):ViewModel() {
             }
         }
     }
+    fun decodeJwtToken(googleIdTokenCredential: GoogleIdTokenCredential): User {
+        val idToken = googleIdTokenCredential.idToken
+        return if (idToken != null) {
+            try {
+                val jwt = JWT(idToken)
+                val name = jwt.getClaim("name").asString()
+                User(name?:"NO NAME", "","")
+            } catch (e: Exception) {
+                Log.e("JWTDecode", "JWT Decode error", e)
+                User("", "","")
+            }
+        } else {
+            Log.e("JWTDecode", "ID token is null")
+            User("", "", "")
+        }
+    }
+
+    fun clearReservations(context: Context) {
+        viewModelScope.launch {
+            val pref = context.getSharedPreferences("fileName", Context.MODE_PRIVATE)
+            val token = pref.getString("token", "none")
+            if (token != null && token != "none") {
+                clearReservationsCache(context)
+            }
+        }
+    }
 
     private fun saveReservationToCache(reservation: Reservation, context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
             val database = AppDatabase.getDatabase(context)
             val reservationEntity = reservation.toEntity()
             database.reservationDao().insert(reservationEntity)
+        }
+    }
+
+    private  fun clearReservationsCache(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val database = AppDatabase.getDatabase(context)
+            database.reservationDao().clearAllReservations()
         }
     }
 
@@ -379,7 +388,7 @@ class viewModal(private val repository: Repository):ViewModel() {
             viewModelScope.launch {
                 val response = repository.updateFcmToken(bearerToken, FCMToken(fcm_token = fcmToken))
                 if (response.isSuccessful) {
-                    success.value=true
+                    registerSuccess.value=true
                     Log.d("FCM", "FCM token updated successfully")
                 } else {
                     Log.e("FCM", "Failed to update FCM token: ${response.errorBody()?.string()}")
@@ -393,4 +402,15 @@ class viewModal(private val repository: Repository):ViewModel() {
             return viewModal(repository) as T
         }
     }
+
+
+
+
+
+
+
+
+
+
+
 }

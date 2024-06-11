@@ -62,10 +62,11 @@ import kotlinx.coroutines.launch
 fun displaySignUp(navController: NavController,viewModal: viewModal) {
     var context = LocalContext.current;
 
-    val success by viewModal.success
+    val registerSuccess by viewModal.registerSuccess
 
-    LaunchedEffect(success) {
-        if (success){
+    LaunchedEffect(registerSuccess) {
+        if (registerSuccess){
+            viewModal.registerSuccess.value = false
             navController.navigate(Routes.GeoCardSCreen.route) {
                 popUpTo(0)
             }
@@ -324,7 +325,7 @@ fun displaySignUp(navController: NavController,viewModal: viewModal) {
                     .padding(1.dp)
                     .clickable {
 
-                        viewModal.signInWithGoogle(context)
+//                        viewModal.signInWithGoogle(context)
 
                     },
             )

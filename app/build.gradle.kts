@@ -44,17 +44,23 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
+
+
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/*"
         }
+
+
     }
+    
+
 }
 
 dependencies {
     implementation("androidx.room:room-runtime:2.6.1")
-    kapt("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
 
 
     implementation("androidx.core:core-ktx:1.13.0")
@@ -119,11 +125,14 @@ dependencies {
     implementation ("androidx.compose.runtime:runtime-livedata:1.0.5")
 
     //pour l'authentification google
-    implementation("androidx.credentials:credentials:1.3.0-alpha04")
-    implementation("androidx.credentials:credentials-play-services-auth:1.3.0-alpha04")
+    implementation("androidx.credentials:credentials:1.3.0-beta01")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0-beta01")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.0")
+    implementation("com.google.api-client:google-api-client:2.3.0")
 
     implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
     implementation("com.google.firebase:firebase-messaging")
+
+    implementation("com.auth0.android:jwtdecode:2.0.2")
 
 }

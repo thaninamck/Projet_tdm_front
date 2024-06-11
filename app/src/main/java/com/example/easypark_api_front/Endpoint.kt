@@ -2,10 +2,10 @@ package com.example.easypark_api_front
 
 
 
-import com.example.easypark_api_front.model.Reservation
 import com.example.easypark_api_front.model.AuthResponse
 import com.example.easypark_api_front.model.FCMToken
 import com.example.easypark_api_front.model.Parking
+import com.example.easypark_api_front.model.Reservation
 import com.example.easypark_api_front.model.ReservationRequest
 import com.example.easypark_api_front.model.User
 import com.example.easypark_api_front.ui.theme.URL
@@ -41,6 +41,11 @@ interface Endpoint {
         @Body user: User
     ): Response<AuthResponse>
 
+    @POST("api/google-auth")
+    suspend fun googleAuth(
+        @Body user: User
+    ): Response<AuthResponse>
+
     @POST("api/login")
     suspend fun loginUser(
         @Body user: User
@@ -61,6 +66,12 @@ interface Endpoint {
     suspend fun getMyReservations(
         @Header("Authorization") token:String
     ): Response<List<Reservation>>
+
+
+    @POST("api/verifyUser")
+    suspend fun verifyUser(
+        @Body user: String
+    ): Response<AuthResponse>
 
     @POST("api/parking/{id}/create-reservation")
     suspend fun createReservation(
